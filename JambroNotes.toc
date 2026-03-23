@@ -1,0 +1,22 @@
+\contentsline {section}{\numberline {I}Motivation}{2}{section.1}%
+\contentsline {section}{\numberline {II}The Model}{2}{section.2}%
+\contentsline {subsection}{\numberline {II.A}Households and borrowing constraint}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {II.B}Preferences and net income}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {II.C}Production, prices, and monetary policy}{4}{subsection.2.3}%
+\contentsline {section}{\numberline {III}Solution and Equilibrium}{5}{section.3}%
+\contentsline {subsection}{\numberline {III.A}Budget constraints}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {III.B}Period 2 Onward: Steady state}{5}{subsection.3.2}%
+\contentsline {subsection}{\numberline {III.C}Period 1: the deleveraging recession}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {III.D}Period 0: the borrowing decision}{7}{subsection.3.4}%
+\contentsline {section}{\numberline {IV}The Aggregate Demand Externality}{8}{section.4}%
+\contentsline {subsection}{\numberline {IV.A}Setting up the value function}{8}{subsection.4.1}%
+\contentsline {subsection}{\numberline {IV.B}Household optimisation: the private Euler equation}{9}{subsection.4.2}%
+\contentsline {subsection}{\numberline {IV.C}The aggregate demand externality}{9}{subsection.4.3}%
+\contentsline {subsection}{\numberline {IV.D}Ex-post policy: write-downs}{10}{subsection.4.4}%
+\contentsline {section}{\numberline {V}The Social Planner's Optimal Allocation}{10}{section.5}%
+\contentsline {subsection}{\numberline {V.A}The planner's problem \& FOCs}{11}{subsection.5.1}%
+\contentsline {subsection}{\numberline {V.B}The planner's Euler equation}{12}{subsection.5.2}%
+\contentsline {subsection}{\numberline {V.C}Implementation}{14}{subsection.5.3}%
+\contentsline {section}{\numberline {VI}Debt Limits in the Real World}{15}{section.6}%
+\contentsline {section}{\numberline {VII}Leaning Against the Wind}{16}{section.7}%
+\contentsline {section}{\numberline {VIII}Collateral Spirals and Firesale Externalities}{18}{section.8}%
