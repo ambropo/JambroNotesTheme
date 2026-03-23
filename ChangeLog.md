@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## Version 1.1-dev — *2026-03-23*
+
+### Added
+- **`DemoNotes.tex`**: added explicit `hidememo` option coverage so both public package options now appear in the demo harness.
+
+### Changed
+- **`AGENTS.md`**: synced the maintenance instructions with the real repo filenames (`notesthemejambro.sty`, `DemoNotes.tex`) and the live annotation command (`\memo`).
+- **`notesthemejambro.sty`**: bumped the working-tree package header to `v1.1-dev` and refreshed the top-of-file API summary so option defaults and public-command docs match the live code.
+- **`DemoNotes.tex`**: synced the demo title with `v1.1-dev`, corrected the documented default `wiggle` amplitude from `0.8pt` to `0.4pt`, and clarified that `\marker` wraps visible text rather than creating invisible content.
+- **`notesthemejambro.sty`**: switched the dependency block from `\usepackage` to `\RequirePackage` for package-style consistency with `beamerthemejambro.sty`, and renamed the internal wiggle-amplitude macro from `\jambronoteswiggleamp` to `\jambrowiggleamp`.
+
+### Fixed
+- **`notesthemejambro.sty`**: internalised the old `pencilboxstyle` helper as `jambro@pencilboxstyle`, documented the custom `\notesize` definition more accurately, and tightened several comments so they explain intent rather than restating LaTeX syntax.
+- **`DemoNotes.tex`**: replaced several `\texttt{\textbackslash ...}` snippets with safer `\verb|...|` or plain-text forms and shortened the labeled-box explanation to remove the demo's existing `cmtt` font warnings and overfull line.
+
+### Removed
+- **`notesthemejambro.sty`**: removed the unused `patterns` and `arrows` TikZ libraries and dropped the unused `snake` style from the live API surface.
+
+---
+
 ## Version 1.1 — *2026-03-23*
 
 ### Added

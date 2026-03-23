@@ -18,5 +18,7 @@
 \contentsline {section}{\numberline {VI}Paragraph Numbering}{4}{section.6}%
 \contentsline {section}{\numberline {VII}Pencil Arrows}{5}{section.7}%
 \contentsline {subsection}{\numberline {VII.A}Inline Directional Arrows}{5}{subsection.7.1}%
-\contentsline {subsection}{\numberline {VII.B}Overlay Arrows with \texttt {\textbackslash marker}}{5}{subsection.7.2}%
-\contentsline {section}{\numberline {VIII}Wiggle Option}{5}{section.8}%
+\contentsline {subsection}{\numberline {VII.B}Overlay Arrows with Marker Nodes}{5}{subsection.7.2}%
+\contentsline {section}{\numberline {VIII}Package Options}{5}{section.8}%
+\contentsline {subsection}{\numberline {VIII.A}Wiggle}{5}{subsection.8.1}%
+\contentsline {subsection}{\numberline {VIII.B}Memo Suppression}{5}{subsection.8.2}%

@@ -1,10 +1,10 @@
-# AI Agent Instructions — JambroNotes Style Maintenance
+# AI Agent Instructions — JambroNotes Theme Maintenance
 
 ## 0) Mission (non-negotiable deliverables)
 
 Your job is to maintain a small, disciplined "notes style repo" with three always-up-to-date artifacts:
 
-1. **`JambroNotes.sty`**
+1. **`notesthemejambro.sty`**
 
    * Clean, logically ordered, well commented.
    * Compiles without errors/warnings *caused by the style* (document-specific warnings are acceptable, but flag them).
@@ -15,7 +15,7 @@ Your job is to maintain a small, disciplined "notes style repo" with three alway
    * Lists **all changes since the previous Git commit** (not "since last time you looked").
    * Clear, concrete, and searchable.
 
-3. **`template.tex`**
+3. **`DemoNotes.tex`**
 
    * A minimal but complete starter document that **exercises every user-facing feature** of the `.sty`.
    * Compiles cleanly and demonstrates the intended look.
@@ -28,7 +28,7 @@ Your job is to maintain a small, disciplined "notes style repo" with three alway
 
 ### 1.1 Don't bluff
 
-* **Never claim something works unless you compiled `template.tex` successfully.**
+* **Never claim something works unless you compiled `DemoNotes.tex` successfully.**
 * If you cannot test (e.g., missing TeX packages), say so explicitly and provide the best safe alternative.
 
 ### 1.2 Minimal, safe edits
@@ -61,15 +61,15 @@ Your job is to maintain a small, disciplined "notes style repo" with three alway
 
 ### Step B — Make the change
 
-* Update `JambroNotes.sty`.
-* Update/extend `template.tex` so the modified feature is exercised.
+* Update `notesthemejambro.sty`.
+* Update/extend `DemoNotes.tex` so the modified feature is exercised.
 * Update `ChangeLog.md` with an entry that matches the actual diff.
 
 ### Step C — Test
 
 Run at least:
 
-* `latexmk -pdf -interaction=nonstopmode template.tex`
+* `latexmk -pdf -interaction=nonstopmode DemoNotes.tex`
   (or an equivalent compile command)
 
 Record outcomes:
@@ -82,12 +82,12 @@ Record outcomes:
 * Ensure every new/changed user-facing command, color, environment, or option:
 
   * is documented in comments in `.sty`,
-  * appears in `template.tex`,
+  * appears in `DemoNotes.tex`,
   * is described in `ChangeLog.md`.
 
 ---
 
-## 3) `JambroNotes.sty` structure rules
+## 3) `notesthemejambro.sty` structure rules
 
 ### 3.1 Ordering (keep stable)
 
@@ -98,7 +98,7 @@ Organize the file into predictable blocks (use clear section headers):
    * `\NeedsTeXFormat`, `\ProvidesPackage`, version string.
 2. **Packages**
 
-   * All `\usepackage` calls, grouped logically (encoding, math, layout, fonts, graphics, utilities).
+   * All package-loading calls, grouped logically (encoding, math, layout, fonts, graphics, utilities). Prefer `\RequirePackage` inside the `.sty`.
 3. **Colors**
 
    * Centralize all `\definecolor` definitions in one place.
@@ -110,7 +110,7 @@ Organize the file into predictable blocks (use clear section headers):
    * `\parindent`, `\parskip`, list spacing, etc.
 6. **Commands — general**
 
-   * Utility macros (`\NB`, `\E`, `\ACB`, etc.).
+   * Utility macros (`\NB`, `\E`, `\memo`, etc.).
 7. **TikZ / drawing**
 
    * Library loads, decoration definitions, style defs.
@@ -131,7 +131,7 @@ Do not scatter related settings across the file.
 * For each public API item:
 
   * Provide a one-line doc comment with usage syntax.
-  * Add an example in `template.tex`.
+  * Add an example in `DemoNotes.tex`.
 
 ### 3.3 Naming conventions
 
@@ -149,10 +149,10 @@ Do not scatter related settings across the file.
 
 ---
 
-## 4) `template.tex` requirements
+## 4) `DemoNotes.tex` requirements
 
-`template.tex` is not a real notes document; it is a **feature showcase**.
-**Rule:** If it is in `.sty` and user-facing, it must appear in `template.tex`.
+`DemoNotes.tex` is not a real notes document; it is a **feature showcase**.
+**Rule:** If it is in `.sty` and user-facing, it must appear in `DemoNotes.tex`.
 
 Cover at minimum:
 
@@ -165,7 +165,7 @@ Cover at minimum:
 * `\lapisbox{...}` and `\lapisbox[color=...,label=...]{...}`
 * `\lapisboxeq{...}` in a display equation
 * `\hand` / `\handbold` font
-* `\ACB{...}` annotation
+* `\memo{...}` annotation
 * A table using `tabularx` with `Y` column type
 * A `tikzpicture` with a pencil-style arrow
 
@@ -190,7 +190,7 @@ Use one entry per "work session" (or per commit). Template:
 
 * Be concrete: reference command names and features.
 * If behavior changed: describe *before → after*.
-* If a change required updating `template.tex`, mention it.
+* If a change required updating `DemoNotes.tex`, mention it.
 * If you fixed a bug: include the symptom and the cause (briefly).
 
 ---
@@ -199,9 +199,9 @@ Use one entry per "work session" (or per commit). Template:
 
 You may only mark work complete if all are true:
 
-* `template.tex` compiles successfully.
+* `DemoNotes.tex` compiles successfully.
 * The style compiles without introducing errors.
-* `template.tex` demonstrates every public feature.
+* `DemoNotes.tex` demonstrates every public feature.
 * `ChangeLog.md` accurately reflects the actual diff vs previous commit.
 * Comments in `.sty` are updated where behavior changed.
 
@@ -224,5 +224,5 @@ You may only mark work complete if all are true:
 * Dry, precise, minimal fluff.
 * When reporting changes, prefer:
 
-  * "I changed X to Y because Z; template shows it in section N."
+  * "I changed X to Y because Z; DemoNotes shows it in section N."
 * If something is unverified, state it plainly.
