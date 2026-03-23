@@ -1,0 +1,1030 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage[hmargin={1in,1in},vmargin={1in,1in}]{geometry}
+\usepackage{fancyhdr}
+\usepackage[table]{xcolor}
+\usepackage[labelsep=colon,labelfont=bf,sf,justification=centering]{caption}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{todonotes}
+\usepackage[sfdefault]{cabin}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usepackage{titlesec}
+\interfootnotelinepenalty=10000
+\usepackage{makecell}
+\usepackage[bottom]{footmisc}
+\usepackage[section]{placeins}
+\usepackage{chngcntr}
+\usepackage{relsize}
+\usepackage{soul}
+\usepackage{fancyvrb}
+\usepackage{newverbs}
+\usepackage{anyfontsize}
+\usepackage[most]{tcolorbox}
+\usepackage{setspace}
+\tcbuselibrary{listings,skins}
+\usepackage[colorlinks=true,linkcolor=note,citecolor=note,urlcolor=note]{hyperref}
+
+
+\newcommand{\ACB}[1]{\noindent \textcolor{tomato}{{\hand \small \underline{ACB}: #1}}} %show 
+ 
+% Colors
+%-----------------------------------------------------
+\definecolor{tomato}{RGB}{217,83,79}
+\definecolor{note}{RGB}{49,79,179}
+\definecolor{BoEacqua}{RGB}{61,215,217}
+\definecolor{BoEorange}{RGB}{255,114,0}
+\definecolor{BoEpurple}{RGB}{159,112,225}
+\definecolor{BoEgold}{RGB}{213,175,54}
+\definecolor{BoEgray}{RGB}{197,201,207}
+\definecolor{BoEblue}{RGB}{18,38,62}
+\definecolor{BoEred}{RGB}{254,1,91}
+\definecolor{title}{RGB}{7,40,91}  
+\definecolor{cobalt}{RGB}{0,124,146}
+\definecolor{carandache}{RGB}{218,165,32}
+\definecolor{gold}{RGB}{218,165,32}
+
+% Environment for note boxes with normal paragraph indentation
+\newtcolorbox{notebox}{
+    breakable,
+    colback=note!10,
+    colframe=note!10,
+}
+ 
+% Format
+%-----------------------------------------------------
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.2cm}
+\setlist[itemize]{noitemsep, topsep=0pt, parsep=0pt, partopsep=0pt}
+\setlist[enumerate]{noitemsep, topsep=0pt, parsep=0pt, partopsep=0pt}
+\renewcommand\labelitemi{-}
+\newcommand{\NB}[1]{\todo[color=note!40,inline]{#1}}
+\newcommand{\E}{\mathbb{E}}
+
+% Tikz
+%-----------------------------------------------------
+\usetikzlibrary{calc,decorations,patterns,arrows,decorations.pathmorphing}
+\makeatletter
+\pgfset{
+    /pgf/decoration/randomness/.initial=2,
+    /pgf/decoration/wavelength/.initial=150
+}
+
+\pgfdeclaredecoration{sketch}{init}{
+    \state{init}[width=0pt,next state=draw,
+        persistent precomputation={\pgfmathsetmacro\pgf@lib@dec@sketch@t0}]{}%
+    \state{draw}[
+        width=\pgfdecorationsegmentlength,
+        auto corner on length=\pgfdecorationsegmentlength,
+        persistent precomputation={
+            \pgfmathsetmacro\pgf@lib@dec@sketch@t{
+                mod(\pgf@lib@dec@sketch@t + pow(\pgfkeysvalueof{/pgf/decoration/randomness}, rand),
+                \pgfkeysvalueof{/pgf/decoration/wavelength})
+            }
+        }]{
+        \pgfmathparse{
+            sin(2*\pgf@lib@dec@sketch@t*pi/\pgfkeysvalueof{/pgf/decoration/wavelength}r)
+        }
+        \pgfpathlineto{
+            \pgfqpoint{\pgfdecorationsegmentlength}{\pgfmathresult\pgfdecorationsegmentamplitude}
+        }
+    }
+    \state{final}{}
+}
+\makeatother
+
+\DeclareRobustCommand{\hand}{%
+\fontfamily{augie}\selectfont}
+\DeclareTextFontCommand{\textaugie}{\hand}
+\newcommand{\handbold}[1]{{\hand\pdfliteral direct{0.6 w 2 Tr}#1\pdfliteral direct{0 w 0 Tr}}}
+
+% --- TikZ style definitions ---
+\tikzset{
+    % Pencil style - hand-drawn appearance
+    pencil/.style={
+        carandache,
+        line width=0.05cm,
+        decorate,
+        decoration={
+            sketch,
+            segment length=1.2pt,
+            amplitude=0.8pt
+        }
+    },
+    nstyle/.style={inner sep=0pt, anchor=base},
+    tstyle/.style={remember picture, baseline},
+    tpstyle/.style={overlay, remember picture},
+    % Box style with pencil effect
+    pencilboxstyle/.style={
+        pencil,
+        draw,
+        line width=0.05cm,
+        inner xsep=0.5pt,
+        inner ysep=0.5pt,
+        baseline
+    }
+}
+
+% --- Hand-drawn underline (pencil effect) ---
+% Usage: \lapis{text}             -> default carandache color
+% Usage: \lapis[red]{text}        -> custom color underline
+\newcommand{\lapis}[2][]{%
+    \def\FirstArg{#1}%
+    \ifx\FirstArg\empty
+        \tikz[tstyle]{\node[nstyle](node1){#2}}%
+        \begin{tikzpicture}[tpstyle]
+            \draw[pencil,very thick] ([yshift=-0.5ex]node1.base west)
+                                      to ([yshift=-0.5ex]node1.base east);
+        \end{tikzpicture}%
+        \hspace{-0.025cm}%
+    \else
+        \tikz[tstyle]{\node[nstyle](node1){#2}}%
+        \begin{tikzpicture}[tpstyle]
+            \draw[pencil,very thick,#1] ([yshift=-0.5ex]node1.base west)
+                                         to ([yshift=-0.5ex]node1.base east);
+        \end{tikzpicture}%
+        \hspace{-0.025cm}%
+    \fi
+}
+
+% --- Hand-drawn box around text (pencil-style rectangle) ---
+% Creates a pencil-effect box that can be labeled for arrow targeting
+%
+% Usage: \lapisbox{text}                           → simple box
+% Usage: \lapisbox[color=red]{text}                → colored box
+% Usage: \lapisbox[label=mynode]{text}             → box with label for arrows
+% Usage: \lapisbox[color=tomato,label=box1]{text}  → full customization
+\makeatletter
+\pgfkeys{
+    /pencilbox/.is family, /pencilbox,
+    label/.estore in=\lapisbox@label,
+    color/.estore in=\lapisbox@color,
+}
+\def\lapisbox@label{}
+\def\lapisbox@color{gold}
+
+\newcommand{\lapisbox}[2][]{%
+    \pgfkeys{/pencilbox, #1}%
+    % Define box style with current color
+    \tikzset{
+        pencilboxstyle/.style={
+            pencil,
+            draw,
+            \lapisbox@color!80,
+            line width=0.04cm,
+            fill=yellow!0,
+            inner xsep=1.2pt,
+            inner ysep=1.4pt,
+            baseline
+        }
+    }%
+    \hspace{0cm}%
+    \raisebox{0pt}[0pt][0pt]{%
+        \ifx\lapisbox@label\@empty
+            % No label: just create box
+            \tikz[baseline=(X.base), remember picture]{%
+                \node[pencilboxstyle, text=.] (X) {\strut #2};
+            }
+        \else
+            % With label: create named node for arrow targeting
+            \tikz[baseline=(\lapisbox@label.base), remember picture]{%
+                \node[pencilboxstyle, text=.=] (\lapisbox@label) {\strut #2};
+            }
+        \fi
+    }%
+    \hspace{-0.1cm}%
+}
+
+% --- Display-safe pencil box for equations ---
+% Usage: \lapisboxeq{a=b}
+% Usage: \lapisboxeq[color=tomato]{a=b}
+\newcommand{\lapisboxeq}[2][]{%
+    \pgfkeys{/pencilbox, #1}%
+    \tikzset{
+        pencilboxstyle/.style={
+            pencil,
+            draw,
+            \lapisbox@color!80,
+            line width=0.04cm,
+            fill=yellow!0,
+            inner xsep=4pt,
+            inner ysep=5pt,
+            baseline
+        }
+    }%
+    \tikz[baseline=(X.base)]{
+        \node[pencilboxstyle, text=black] (X) {$\displaystyle #2$};
+    }%
+}
+\makeatother
+
+% Table set up
+%-----------------------------------------------------
+\makeatletter
+\newcommand*\notesize{\@setfontsize\notesize{8.5}{9.0}}
+\makeatother
+\renewcommand{\arraystretch}{1.15}
+\newcolumntype{Y}{>{\centering\arraybackslash\leavevmode}X}
+
+% Section formatting
+%-----------------------------------------------------
+\titleformat{\section}{\Large\bfseries\sffamily\color{note}}{\thesection}{1em}{\MakeUppercase}
+\titleformat{\subsection}{\large\bfseries\sffamily\color{note}}{\thesubsection}{1em}{\MakeUppercase}
+\titlespacing*{\section}{0pt}{*3}{0.1em}
+\titlespacing*{\subsection}{0pt}{*2}{0.1em}
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\Roman{section}.\Alph{subsection}}
+
+% Paragraph numbering
+%-----------------------------------------------------
+\newcounter{paranum}
+\renewcommand{\theparanum}{\arabic{paranum}.} 
+\newcommand{\para}{\leavevmode\refstepcounter{paranum}\theparanum\quad}
+
+%==================================================
+\title{\vspace{-2cm}\color{BoEblue}
+\textbf{Lecture Notes: Topic 4}\\[0.3em]
+\Large Macroprudential Policy\\[0.3em]
+\large EC424 --- Monetary Economics and Aggregate Fluctuations\\\bigskip
+\large \textit{First version: 19 Mar 2026}
+}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+\vspace{-1cm}
+%==================================================
+
+\section{Motivation}
+
+Two empirical facts motivate why macroprudential policy deserves a place in a course on monetary economics. First, large run-ups in private debt preceded the two biggest financial crises of the past 150 years --- the Great Depression and the 2008 global financial crisis --- and both were accompanied by catastrophic and long-lasting output losses. Second, the connection between pre-crisis debt levels and post-crisis unemployment holds not just at the country level but also across US states, controlling for common factors such as monetary and fiscal policy (Mian and Sufi).
+
+The key feature distinguishing these events from the shocks studied in earlier topics is their nature: they are rare, very large, and potentially highly non-linear --- not small, normally distributed deviations around a steady state.
+
+\textbf{Why do we need a theory?} Correlation between debt build-ups and crises is not enough. Winter is associated with large output losses in the agricultural sector but we do not try to stop the Earth's orbit. We need to identify the precise market failures and inefficiencies that warrant policy intervention. In a standard model with only nominal rigidities, correcting those rigidities restores efficiency; there is no additional role for limiting credit. The question is: what other frictions generate over-borrowing?
+
+\textbf{Roadmap.} The notes cover two sources of inefficiency:
+\begin{itemize}
+    \item \textbf{Aggregate demand externalities}: when a borrower deleverages, the fall in their spending reduces everyone's income. They do not internalise this. Sections~\ref{sec:model}--\ref{sec:planner} develop a model of this mechanism (Korinek--Simsek 2016), proceeding from the model description through the equilibrium, the externality, and the social planner's problem.
+    \item \textbf{Firesale externalities}: asset price falls triggered by forced selling reduce collateral values for all agents. Section~\ref{sec:firesale} covers this.
+\end{itemize}
+No log-linearisations in this topic: macroprudential policy is about tail risks and occasional, large events.
+
+%==================================================
+
+\section{The Model}\label{sec:model}
+
+The model has three key ingredients: (i) heterogeneous households (borrowers and lenders) who differ only in their discount factor; (ii) a borrowing constraint that tightens in period 1, forcing borrowers to deleverage; and (iii) complete price rigidity plus a zero lower bound (ZLB) on the nominal interest rate. The combination of (ii) and (iii) can generate a severe, demand-driven recession. The key insight is that borrowers in period 0 do not internalise that their borrowing imposes a cost on everyone through its effect on aggregate income in the recession state.
+
+\textbf{Mortgage analogy.} Suppose a borrower is allowed to borrow four times their income of 25, so $B = 100$. They repay 10 per period and consume 15. Now suppose the limit tightens to three times income: they can only roll over 75. The shortfall of 15 must come from income, so consumption falls from 15 to $25 - 15 - 7.5 = 2.5$. This is the deleveraging shock at the heart of the model.
+
+\subsection{Households and borrowing constraint}
+
+There are two types of households, borrowers ($j=b$) and lenders ($j=l$), each of measure $\frac{1}{2}$. The two groups are identical except $1>\beta^l>\beta^b$: borrowers are more impatient and want to borrow; lenders are more patient and want to save. Borrowing is therefore driven by preferences (not by income differences, as in Topic 3).
+
+Let $B_t^j$ denote bond holdings. Zero net saving implies $B_t^l = -B_t^b \equiv B_t$, so $B_t$ is both the total amount lenders are owed and the total amount borrowers owe.
+
+\textbf{Timing and the borrowing constraint.}
+\begin{itemize}
+    \item $t=0$: no constraint on borrowing; borrowers choose $B_1$ freely.
+    \item $t \geq 1$: borrowing constraint $B_{t+1} \leq \phi$ is in place.
+    \item We assume $B_1 > \phi$: borrowers enter period 1 with more debt than the new limit permits and must deleverage.
+    \item From $t=2$ onward: $B_t = \phi$ in steady state (borrowers hit the constraint each period).
+\end{itemize}
+
+\subsection{Preferences and net income}
+
+Each household solves:
+\begin{equation}
+\begin{aligned}
+    \max_{C_t^j, B_t^j, N_t^j} & \quad \sum_{t=0}^{\infty} \beta^j \, u\!\left(C_t^j - v(N_t^j)\right) \\
+    \text{s.t.} & \quad C_t^j + \frac{B_{t+1}^j}{1+r_t} = w_t N_t^j + B_t^j + D_t - T_t
+\end{aligned}
+\end{equation}
+where $D_t$ are firm dividends and $T_t$ are lump-sum taxes, both uniform across groups (no $j$ index).
+
+These are Greenwood--Hercowitz--Huffman (GHH) preferences. The utility index is $u(C - v(N))$ rather than the separable $u(C) - v(N)$. The first-order condition for labour supply is:
+\begin{equation}
+v'(N_t^j) = w_t
+\end{equation}
+Consumption drops out entirely. Labour supply is pinned down by the wage alone, independent of wealth or the consumption-savings decision. This is the absence of wealth effects on labour supply.
+
+\textbf{Why does this matter?} With standard (KPR) preferences, a positive wealth shock reduces labour supply (people work less when richer), so labour income would depend on savings decisions. GHH eliminates this: the labour supply decision is static and independent of the intertemporal problem.
+
+\textbf{Connection to Topic 3.} GHH plays the same role as the union assumption in the TANK model: it kills heterogeneity on the supply side. With different discount factors and standard preferences, the two groups would have heterogeneous labour supply curves. GHH ensures both groups supply the same hours (at the same wage), allowing the model to focus purely on demand-side heterogeneity.
+
+Define net income as labour income minus the consumption-equivalent cost of working:
+\begin{equation}
+e_t^j = \max_{N_t^j} \bigl\{w_t N_t^j - v(N_t^j)\bigr\} + D_t - T_t
+\end{equation}
+\textit{Intuition.} Think of $v(N)$ as childcare costs: if I earn 100 apples but must spend 10 on childcare to be able to work, my net income is 90 apples. We net off the consumption units foregone to work. The max operator is present because hours are optimised over.
+
+\textbf{Why is net income independent of the consumption-savings decision?} Because of GHH. The condition $v'(N) = w$ pins down $N^*$ as a function of the wage alone. Net income $e = wN^* - v(N^*)$ is therefore also a function only of the wage --- it is determined before and independently of how much the household saves. This is why net income can be treated as a given ``endowment'' when writing the budget constraint.
+
+Define $\tilde{C}_t^j \equiv C_t^j - v(N_t^j)$. Subtracting $v(N_t^j)$ from both sides of the budget constraint, the household problem reduces to a standard consumption-savings problem:
+\begin{equation}
+\begin{aligned}
+    \max_{\tilde{C}_t^j, B_t^j} & \quad \sum_{t=0}^{\infty} \beta^j \, u(\tilde{C}_t^j) \\
+    \text{s.t.} & \quad \tilde{C}_t^j + \frac{B_{t+1}^j}{1+r_t} = e_t^j + B_t^j
+\end{aligned}
+\end{equation}
+Net income is symmetric: $e_t^b = e_t^l$ since $N_t^b = N_t^l$ (same wage, same optimality condition).
+
+\subsection{Production, prices, and monetary policy}
+
+\textbf{What is this block doing?} It fixes the supply side so that, absent nominal rigidities, the economy has a clean efficient benchmark $e^*$. Then all of the interesting inefficiency in the model comes from insufficient demand, not from monopoly pricing or labour wedges. That is why the subsidy assumption matters.
+
+\textbf{Production.} Monopolistically competitive firms use a linear technology $Y_t(i) = N_t(i)$, so $\mathrm{MPL} = 1$ and nominal marginal cost is just the nominal wage: $MC_t = \mathcal{W}_t$. Without any correction, monopolistic competition would imply a price markup over marginal cost, pushing the real wage below the efficient level. The role of the employment subsidy $\tau = 1/\varepsilon$ is exactly to neutralise that distortion.
+
+\textbf{Why does the subsidy imply $w_t=1$?} Three steps.
+
+\textit{Step 1: Markup pricing without the subsidy.} A firm sets price as a markup $\mathcal{M} = \varepsilon/(\varepsilon-1) > 1$ over marginal cost: $P_t(i) = \mathcal{M}\mathcal{W}_t$. Hence the real wage would be $w_t = \mathcal{W}_t/P_t = 1/\mathcal{M} < 1$. So monopoly power acts like a wedge between the household's labour margin and the efficient one.
+
+\textit{Step 2: The subsidy removes the wedge.} With the subsidy the firm's effective labour cost is $(1-\tau)\mathcal{W}_t$, so pricing becomes $P_t(i) = \mathcal{M}(1-\tau)\mathcal{W}_t$. Setting $\tau = 1/\varepsilon$ gives $\mathcal{M}(1-\tau) = 1$, hence:
+\begin{equation}
+P_t(i) = \mathcal{W}_t \implies w_t = \frac{\mathcal{W}_t}{P_t} = 1
+\end{equation}
+\textit{This is the key benchmark result.} Real marginal cost is constant and equal to 1, so the monopoly distortion has been shut down by construction.
+
+\textit{Step 3: $w_t = 1$ pins down the efficient level of net income.} The GHH labour supply condition $v'(N) = w_t$ becomes $v'(N^*) = 1$, which is exactly the planner's condition for maximising net output, $N-v(N)$. So under flexible prices and with the subsidy in place, decentralised hours coincide with efficient hours:
+\begin{equation}
+e^* = \max_{N}\{N - v(N)\} \quad \Rightarrow \quad v'(N^*) = 1
+\end{equation}
+This tells us how large the pie is in the efficient benchmark. It does \textit{not} tell us how it is divided across borrowers and lenders.
+
+\textbf{A useful side implication.} With the subsidy, firm profits created by monopoly pricing are offset by the taxes needed to finance the subsidy, so in equilibrium dividends and taxes wash out in net terms. That is why they never become a source of heterogeneity in the household problem.
+
+\textbf{Prices and ZLB.} Now add nominal rigidity. Assume complete price rigidity: $P_t(i) = P$ for all $t$. In a cashless-limit formulation, the Fisher equation implies $i_t = r_t \geq 0$, so the ZLB on nominal rates is also a ZLB on real rates. Monetary policy would like to set some notional real rate $r_t^*$ that delivers $e_t=e^*$, but it can only do so when $r_t^* \geq 0$.
+
+\textbf{Demand-determined economy.} With sticky prices and the subsidy, firms supply whatever is demanded. Aggregate output equals average consumption:
+\begin{equation}
+Y_t = e_t = \frac{\tilde{C}_t^b + \tilde{C}_t^l}{2}
+\end{equation}
+This is the goods market clearing condition: aggregate supply (left) equals aggregate demand (right, the population-weighted average, with group sizes $\frac{1}{2}$).
+
+Monetary policy therefore sets
+\begin{equation}
+r_t = \max(0, r_t^*)
+\end{equation}
+where $r_t^*$ is the real rate that would close the output gap. Above the ZLB, policy can hit the efficient benchmark and we get $e_t=e^*$. At the ZLB, however, the required real rate is too low to implement, so output becomes demand-determined and falls below $e^*$. This is the exact margin on which household debt becomes socially costly later in the model: not because debt changes supply, but because it changes demand in a state where monetary policy is constrained.
+
+\section{Solution and Equilibrium}\label{sec:equilibrium}
+
+The model is solved by backward induction: first solve for the period-1 equilibrium taking $B_1$ as given, then solve for the period-0 equilibrium which pins down $B_1$ itself.
+
+\subsection{Budget constraints}
+
+The household budget constraint (in $\tilde{C}$ form) is always:
+\begin{equation}
+\tilde{C}_t^j + \frac{B_{t+1}^j}{1+r_t} = e_t + B_t^j
+\end{equation}
+Recall: $B_t^l = B_t > 0$, $B_t^b = -B_t < 0$, and $B_2 = B_3 = \cdots = \phi$ in steady state (borrowers hit the constraint). Expanding for each group and period:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{llll}
+\toprule
+Period & Group & Budget constraint & Note \\
+\midrule
+$t \geq 2$ & borrower & $\tilde{C}_t^b = e^* - \phi + \dfrac{\phi}{1+r_t}$ & $B_t^b=-\phi$, $B_{t+1}^b=-\phi$ \\
+$t \geq 2$ & lender   & $\tilde{C}_t^l = e^* + \phi - \dfrac{\phi}{1+r_t}$ & $B_t^l=\phi$, $B_{t+1}^l=\phi$ \\
+\midrule
+$t = 1$ & borrower & $\tilde{C}_1^b = e_1 - B_1 + \dfrac{\phi}{1+r_1}$ & $B_1^b=-B_1$, $B_2^b=-\phi$ \\
+$t = 1$ & lender   & $\tilde{C}_1^l = e_1 + B_1 - \dfrac{\phi}{1+r_1}$ & $B_1^l=B_1$, $B_2^l=\phi$ \\
+\midrule
+$t = 0$ & borrower & $\tilde{C}_0^b = e^* - B_0 + \dfrac{B_1}{1+r_0}$ & $B_0^b=-B_0$, $B_1^b=-B_1$ \\
+$t = 0$ & lender   & $\tilde{C}_0^l = e^* + B_0 - \dfrac{B_1}{1+r_0}$ & $B_0^l=B_0$, $B_1^l=B_1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The pattern is the same in every period: lenders consume $e$ plus the net lending flow; borrowers consume $e$ minus it. The net lending flow is always (debt maturing in $t$) minus (new debt issued at $t$ at current prices). Note $e_0 = e^*$ since $r_0 > 0$ and $e_t = e^*$ for $t \geq 2$; only $e_1$ may fall below $e^*$.
+
+\subsection{Period 2 Onward: Steady state}
+
+From $t=2$ onward, borrowers are constrained (hand-to-mouth) and off their Euler equation. Only lenders price bonds, giving:
+\begin{equation}
+r_t = \frac{1}{\beta^l} - 1 > 0
+\end{equation}
+Parallel to Topic 3: constrained borrowers are HtM, so only the lenders' Euler equation (with constant consumption) pins down the rate. This rate is above the ZLB, so $e_t = e^*$. The steady-state expressions simplify using $r_t = 1/\beta^l - 1$:
+\begin{equation}
+\tilde{C}_t^b = e^* - \phi(1-\beta^l), \qquad \tilde{C}_t^l = e^* + \phi(1-\beta^l)
+\end{equation}
+
+\subsection{Period 1: the deleveraging recession}
+
+Given $B_1$ from period 0, there are four unknowns: $\{e_1,\, r_1,\, \tilde{C}_1^b,\, \tilde{C}_1^l\}$. The equations are:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Equation & Expression & Pins down \\
+\midrule
+Borrowers' BC & $\tilde{C}_1^b = e_1 - \bigl(B_1 - \phi/(1+r_1)\bigr)$ & $\tilde{C}_1^b$ given $e_1, r_1$ \\
+Lenders' BC & $\tilde{C}_1^l = e_1 + \bigl(B_1 - \phi/(1+r_1)\bigr)$ & $\tilde{C}_1^l$ given $e_1, r_1$ \\
+Lenders' Euler & $1+r_1 = u'(\tilde{C}_1^l)\,/\,\beta^l u'(\tilde{C}_2^l)$ & links $r_1$ and $\tilde{C}_1^l$ \\
+MP rule + GMC & $e_1 = (\tilde{C}_1^b+\tilde{C}_1^l)/2$,\; $r_1 = \max(0,r_1^*)$ & closes the system \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Note: substituting the two BCs into goods market clearing (GMC) gives $e_1 = e_1$ identically, so GMC adds no information on its own. The real work is in the Euler equation and the MP rule, leaving two equations in two unknowns $(e_1, r_1)$.
+
+What induces lenders to absorb the shortfall in demand from deleveraging? A fall in $r_1$. From the lenders' Euler equation, the denominator $\beta^l u'(\tilde{C}_2^l)$ is pinned down by the steady state. As borrowers cut consumption, lenders must consume more ($\tilde{C}_1^l$ rises), which lowers $u'(\tilde{C}_1^l)$ and hence $r_1$. But $r_1 \geq 0$: if the shock is large enough, no non-negative interest rate clears the market at $e_1 = e^*$. We have a recession.
+
+\begin{itemize}
+    \item \textit{Case 1} ($B_1 \leq \bar{B}$, ZLB not binding): MP targets efficiency ($e_1 = e^*$); lenders' BC gives $\tilde{C}_1^l$; lenders' Euler pins down $r_1 > 0$; borrowers' BC gives $\tilde{C}_1^b$.
+
+    \item \textit{Case 2} ($B_1 > \bar{B}$, ZLB binding): $r_1 = 0$; lenders' Euler at $r_1=0$ pins down $\tilde{C}_1^l = \bar{C}_1^l$; goods market clearing gives $e_1 = \bar{C}_1^l - (B_1-\phi)$; borrowers' BC gives $\tilde{C}_1^b = e_1-(B_1-\phi)$.
+\end{itemize}
+
+The key asymmetry: above the ZLB $r_1$ is the free variable that MP adjusts to hit $e_1=e^*$; at the ZLB $r_1$ is stuck at 0 and $e_1$ becomes demand-determined.
+
+Define $\bar{C}_1^l$ as lenders' maximum willingness to consume, from their Euler equation evaluated at $r_1 = 0$:
+\begin{equation}
+u'(\bar{C}_1^l) = \beta^l \, u'\!\left(e^* + \phi(1-\beta^l)\right)
+\end{equation}
+Even at $r_1 = 0$, lenders will not consume more than $\bar{C}_1^l$. Achieving $e_1 = e^*$ would require lenders to consume $e^* + (B_1 - \phi)$ (the net repayment at $r_1=0$ is $B_1 - \phi$). If $\bar{C}_1^l < e^* + (B_1 - \phi)$, the efficient allocation is unattainable. When the ZLB binds, lenders consume $\bar{C}_1^l$ and goods market clearing gives:
+\begin{equation}
+\frac{1}{2}\big(\underbrace{e_1 - (B_1-\phi)}_{\tilde{C}_1^b}\big) + \frac{1}{2}\bar{C}_1^l = e_1
+\quad \Longrightarrow \quad
+\lapisboxeq[color=BoEacqua]{e_1 = \bar{C}_1^l - (B_1-\phi) < e^*}
+\end{equation}
+Income is demand-determined and falls one-for-one with the excess debt overhang $(B_1-\phi)$. Define the debt threshold $\bar{B} \equiv \bar{C}_1^l + \phi - e^*$: a recession occurs if and only if $B_1 > \bar{B}$. The threshold $\bar{B}$ is a natural macroprudential target.
+
+\textbf{\lapis[BoEacqua]{The Keynesian multiplier}.} The formula $e_1 = \bar{C}_1^l - (B_1-\phi)$ shows a multiplier of 1: every unit of excess debt reduces income by one unit. The mechanism:
+\begin{enumerate}
+    \item Borrowers cut spending by $(B_1-\phi)$. With mass $\frac{1}{2}$, aggregate demand falls by $\frac{1}{2}(B_1-\phi)$.
+    \item Income falls by $\frac{1}{2}(B_1-\phi)$ (demand-determined economy).
+    \item Constrained borrowers (MPC = 1) cut consumption by $\frac{1}{4}(B_1-\phi)$. Further income fall of $\frac{1}{4}(B_1-\phi)$. And so on.
+    \item Geometric sum: $\frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \cdots = 1$.
+\end{enumerate}
+The point of introducing MPC notation is not to get a different answer --- we already know from goods market clearing that $de_1/dB_1 = -1$ in this benchmark case. The point is to restate the same result in a way that makes the mechanism transparent and connects directly to Topic 3. An increase in $B_1$ is a transfer of period-1 resources from borrowers to lenders: borrowers must repay one more unit, while lenders receive one more unit. Holding aggregate income $e_1$ fixed for the moment, the direct effect on demand is therefore:
+\begin{equation}
+-\frac{1}{2}MPC_1^b + \frac{1}{2}MPC_1^l = -\frac{1}{2}(MPC_1^b - MPC_1^l)
+\end{equation}
+where we define
+\begin{equation}
+MPC_1^j \equiv \frac{d\tilde{C}_1^j}{de_1}
+\end{equation}
+as group $j$'s marginal propensity to consume out of period-1 income. Income then responds endogenously, and that lower income feeds back into consumption again through the average MPC. Let
+\begin{equation}
+\overline{MPC}_1 \equiv \frac{1}{2}(MPC_1^b + MPC_1^l).
+\end{equation}
+Then the total effect on income solves:
+\begin{equation}
+de_1 = -\frac{1}{2}(MPC_1^b - MPC_1^l)\, dB_1 + \overline{MPC}_1\, de_1,
+\end{equation}
+so
+\begin{equation}\label{eq:multiplier-general}
+\frac{de_1}{dB_1} = -\frac{\frac{1}{2}(MPC_1^b - MPC_1^l)}{1 - \overline{MPC}_1}
+\end{equation}
+The numerator is the direct redistribution effect from high-MPC borrowers to low-MPC lenders; the denominator is the standard Keynesian multiplier. In our benchmark case:
+\begin{itemize}
+    \item $MPC_1^b = 1$: borrowers are hand-to-mouth at the ZLB. From their budget constraint, $\tilde{C}_1^b = e_1 - (B_1 - \phi/(1+r_1))$. With $B_1$ and $r_1$ fixed, every extra unit of income goes directly to consumption.
+    \item $MPC_1^l = 0$: lenders' consumption is pinned by their Euler equation at $r_1 = 0$, which gives $\tilde{C}_1^l = \bar{C}_1^l$ independent of current income.
+\end{itemize}
+With $MPC_1^b = 1$, $MPC_1^l = 0$, $\overline{MPC}_1 = \frac{1}{2}$, we get $de_1/dB_1 = -1$. So the one-for-one recession effect can be understood as a transfer from high-MPC borrowers to low-MPC lenders, amplified by the Keynesian multiplier --- exactly parallel to Topic 3.
+
+\subsection{Period 0: the borrowing decision}
+
+$B_0$ and $e_0 = e^*$ (since $r_0 > 0$ by assumption) are given. The four unknowns are $\{r_0,\, B_1,\, \tilde{C}_0^b,\, \tilde{C}_0^l\}$.
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Equation & Expression & Role \\
+\midrule
+Borrowers' BC & $\tilde{C}_0^b = e^* - \bigl(B_0 - B_1/(1+r_0)\bigr)$ & $\tilde{C}_0^b$ given $r_0, B_1$ \\
+Lenders' BC & $\tilde{C}_0^l = e^* + \bigl(B_0 - B_1/(1+r_0)\bigr)$ & $\tilde{C}_0^l$ given $r_0, B_1$ \\
+Borrowers' Euler & $\dfrac{1}{1+r_0} = \dfrac{\beta^b u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)}$ & equation in $r_0, B_1$ \\
+Lenders' Euler & $\dfrac{1}{1+r_0} = \dfrac{\beta^l u'(\tilde{C}_1^l)}{u'(\tilde{C}_0^l)}$ & equation in $r_0, B_1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In period 0, neither household faces a binding constraint. Both freely optimise over $B_1^j$, so both Euler equations hold simultaneously:
+\begin{equation}
+\frac{1}{1+r_0} = \frac{\beta^b u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)} = \frac{\beta^l u'(\tilde{C}_1^l)}{u'(\tilde{C}_0^l)}
+\end{equation}
+This stands in contrast to period 1, where only the lenders' Euler holds (borrowers are hand-to-mouth). The period-1 consumptions $\tilde{C}_1^b(B_1)$ and $\tilde{C}_1^l(B_1)$ are known from the period-1 solution, so they enter here as functions of $B_1$.
+
+\textbf{Solution procedure:}
+\begin{enumerate}
+    \item Substitute the BCs into both Euler equations to eliminate $\tilde{C}_0^b$ and $\tilde{C}_0^l$.
+    \item Equating the two Euler equations gives one equation in $(r_0, B_1)$.
+    \item Either Euler equation directly gives a second equation in $(r_0, B_1)$.
+    \item Solve jointly for $r_0$ and $B_1$; back out consumptions from the BCs.
+\end{enumerate}
+
+\textbf{Why can $B_1 > \bar{B}$?} Borrowers are impatient ($\beta^b$ low). They optimally consume a lot in period 0, running up debt $B_1 > \bar{B}$, even though they know this forces painful deleveraging in period 1. The lower $\beta^b$, the more they discount the future recession relative to current utility. This is over-borrowing without any irrationality --- it is individually rational but collectively inefficient.
+
+\section{The Aggregate Demand Externality}\label{sec:ade}
+
+\textbf{The key idea.} When a borrower takes on more debt in period 0, they are optimising for themselves --- weighing the benefit of higher consumption today against the cost of repaying that debt tomorrow. What they do \textit{not} account for is that their individual borrowing decision affects the whole economy: it changes aggregate debt $B_1$, which in turn shifts equilibrium income $e_1$ and the real rate $r_1$. Everyone is affected, but no single household feels responsible. This is the aggregate demand externality.
+
+The goal of this section is to re-derive the private agent's Euler equation using the value function approach, and in doing so expose the term that each household ignores: the effect of its debt choice on aggregate outcomes. Writing the period-0 problem in terms of $V^j$ is not just notation --- it separates the two channels through which $B_1$ matters. The derivative $\partial V^j/\partial B_1^j$ captures what the household internalises and optimises over; the derivative $\delta^j \equiv \partial V^j/\partial B_1$ (defined formally below) captures what it ignores because it is atomistic. The first derivative delivers the standard Euler equation. The second delivers the externality. Section~\ref{sec:planner} will show what the social planner does differently: it accounts for both.
+
+
+\subsection{Setting up the value function}
+
+Define $V^j(B_1^j, B_1)$ as household $j$'s continuation utility from period 1 onward. It depends on two distinct arguments:
+\begin{itemize}
+    \item $B_1^j$: the household's \textit{own} bond position (which they choose in period 0)
+    \item $B_1$: \textit{aggregate} debt in the economy (which no single household controls)
+\end{itemize}
+Expanding using the period-1 budget constraint, and noting that borrowers hit the constraint $B_2^b = -\phi$ while lenders have $B_2^l = \phi$:
+\begin{equation}
+\begin{aligned}
+V^b(B_1^b, B_1) &= u\!\left(e_1(B_1) + B_1^b + \frac{\phi}{1+r_1(B_1)}\right) + \ldots \\
+V^l(B_1^l, B_1) &= u\!\left(e_1(B_1) + B_1^l - \frac{\phi}{1+r_1(B_1)}\right) + \ldots
+\end{aligned}
+\end{equation}
+Note that $B_1^b < 0$ for borrowers (they are net debtors) and $B_1^l > 0$ for lenders (net creditors). The $\pm\phi/(1+r_1)$ terms reflect new debt issued at period-1 prices: positive for borrowers (rolling over debt gives them resources today) and negative for lenders (relending deploys resources). The dots represent utility from period 2 onwards, which does not depend on the period-0 choices.
+
+The value function has two partial derivatives that will play distinct roles. The first, with respect to own position, is immediate from the expressions above: $B_1^j$ enters with coefficient $+1$ in both cases, so:
+\begin{equation}
+\frac{\partial V^b}{\partial B_1^b} = u'(\tilde{C}_1^b), \qquad \frac{\partial V^l}{\partial B_1^l} = u'(\tilde{C}_1^l)
+\end{equation}
+One more unit of bonds raises period-1 consumption by exactly one unit, giving marginal utility $u'(\tilde{C}_1^j)$. 
+
+The second partial derivative, with respect to aggregate $B_1$, is the externality term
+\begin{equation}
+\frac{\partial V^j}{\partial B_1}\equiv\delta^j
+\end{equation}
+where $\delta^j$ will be derived in Section~\ref{sec:subsec:ext} below.
+
+\subsection{Household optimisation: the private Euler equation}
+
+Each household chooses $B_1^j$ in period 0 to maximise:
+\begin{equation}
+U_0^j(B_1^j) + \beta^j V^j(B_1^j, B_1)
+\end{equation}
+taking aggregate $B_1$ as given. Differentiating with respect to $B_1^j$ and setting to zero:
+\begin{equation}
+\frac{\partial U_0^j}{\partial B_1^j} + \beta^j \frac{\partial V^j}{\partial B_1^j} = 0
+\end{equation}
+The first term uses the budget constraint: one more unit of debt today raises $B_1^j/(1+r_0)$ and hence $\tilde{C}_0^j$ by $1/(1+r_0)$, so $\partial U_0^j/\partial B_1^j = u'(\tilde{C}_0^j)/(1+r_0)$. Substituting and rearranging:
+\begin{equation}
+\beta^j \frac{\partial V^j}{\partial B_1^j} = \frac{u'(\tilde{C}_0^j)}{1+r_0} \quad\Rightarrow\quad \beta^j u'(\tilde{C}_1^j) = \frac{u'(\tilde{C}_0^j)}{1+r_0}
+\end{equation}
+This is the standard Euler equation, identical for both groups. It is the same equation derived from the budget constraint in Section~\ref{sec:equilibrium}, now derived from the value function. Each household correctly internalises the effect of its own bond choice on its own consumption --- but it treats aggregate $B_1$ as fixed and never computes $\partial V^j/\partial B_1$. That ignored term is the externality.
+
+A note on signs: for borrowers $B_1^b$ is already negative, so the coefficient $+1$ is correct --- going from $-10$ to $-9$ (borrowing less) raises period-1 consumption because the borrower has less to pay back. The sign lives inside $B_1^b$, not in the derivative.
+
+\subsection{The aggregate demand externality}\label{sec:subsec:ext}
+
+Define $\delta^j \equiv \partial V^j/\partial B_1$: the effect on household $j$'s continuation utility of a one-unit increase in aggregate debt, holding its own position $B_1^j$ fixed. Because households are atomistic, they take $B_1$ as given and never compute this. But in aggregate their individual borrowing decisions do move $B_1$, and hence $e_1(B_1)$ and $r_1(B_1)$.
+
+To derive $\delta^j$, recall from Section~\ref{sec:equilibrium} that period-1 consumption depends on $B_1$ through equilibrium income and the interest rate. For borrowers, $\tilde{C}_1^b = e_1(B_1) + B_1^b + \phi/(1+r_1(B_1))$. Differentiating with respect to $B_1$ (holding $B_1^b$ fixed) and applying the chain rule:
+\begin{equation}
+\frac{\partial \tilde{C}_1^b}{\partial B_1} = \frac{de_1}{dB_1} + \frac{d}{dB_1}\!\left(\frac{\phi}{1+r_1}\right) = \frac{de_1}{dB_1} - \frac{\phi}{(1+r_1)^2}\frac{dr_1}{dB_1}
+\end{equation}
+So $\delta^b = u'(\tilde{C}_1^b) \cdot \partial \tilde{C}_1^b/\partial B_1$. The same logic applies to lenders, but their consumption contains $-\phi/(1+r_1)$, so differentiating that term produces a plus sign:
+\begin{equation}
+\begin{aligned}
+\delta^b &= u'(\tilde{C}_1^b)\left[\frac{de_1}{dB_1} - \frac{\phi}{(1+r_1)^2}\frac{dr_1}{dB_1}\right] \\
+\delta^l &= u'(\tilde{C}_1^l)\left[\frac{de_1}{dB_1} + \frac{\phi}{(1+r_1)^2}\frac{dr_1}{dB_1}\right]
+\end{aligned}
+\end{equation}
+The asymmetry between the two groups comes entirely from the $\pm\phi/(1+r_1)^2$ terms: a fall in the interest rate makes borrowers better off (cheaper refinancing) but lenders worse off (lower returns).
+
+Two cases depending on whether the ZLB binds:
+
+\begin{itemize}
+    \item \textit{Case 1} ($B_1 \in (\phi, \bar{B})$, ZLB not binding): Income is pinned at $e^*$ by monetary policy, so $de_1/dB_1 = 0$. More aggregate debt lowers $r_1$ ($dr_1/dB_1 < 0$). The externality becomes:
+    \begin{equation}
+    \delta^b = -\frac{\phi}{(1+r_1)^2}\frac{dr_1}{dB_1}\,u'(\tilde{C}_1^b) > 0, \qquad \delta^l = +\frac{\phi}{(1+r_1)^2}\frac{dr_1}{dB_1}\,u'(\tilde{C}_1^l) < 0
+    \end{equation}
+    Borrowers gain and lenders lose by exactly the same amount --- analogous to the unhedged rate exposure (URE) channel in the monetary policy literature, where rate changes redistribute between debtors and creditors without aggregate effects. This is a pecuniary externality: redistributive, not a net loss. No Pareto improvement is possible.
+
+    \item \textit{Case 2} ($B_1 \geq \bar{B}$, ZLB binding): The rate is stuck at zero, so $dr_1/dB_1 = 0$. More aggregate debt lowers income ($de_1/dB_1 = -1$; this follows from goods market clearing at the ZLB, derived in Section~\ref{sec:equilibrium}: $e_1 = \bar{C}_1^l - (B_1-\phi)$, so $de_1/dB_1 = -1$). The externality becomes:
+    \begin{equation}
+    \delta^b = -u'(\tilde{C}_1^b) < 0, \qquad \delta^l = -u'(\tilde{C}_1^l) < 0
+    \end{equation}
+    Both groups are hurt by more aggregate debt. The externality has the same sign for borrowers and lenders, creating a net social loss --- there is scope for a Pareto-improving intervention.
+\end{itemize}
+
+\textbf{Intuition.} When the ZLB does not bind, monetary policy offsets the demand shortfall from deleveraging, so there is no aggregate cost --- just redistribution. When the ZLB binds, monetary policy cannot respond, so the demand shortfall becomes a real output loss. Borrowers fail to internalise that their spending is someone else's income: each extra unit of debt they take on reduces aggregate income by one unit, but they treat $e_1$ as given when making their decision.
+
+\subsection{Ex-post policy: write-downs}
+
+Write down all debt to $\bar{B}$ in period 1:
+\begin{itemize}
+    \item Aggregate income rises by $\Delta e_1 = B_1 - \bar{B}$ (multiplier of 1).
+    \item Borrowers gain: reduced debt payment \textit{plus} higher income. Total: $\Delta\tilde{C}_1^b = 2(B_1-\bar{B})$.
+    \item Lenders: lose debt repayment but gain same amount through higher income. Net: $\Delta\tilde{C}_1^l = 0$.
+\end{itemize}
+Pareto improving. \textbf{Caveats}: (i) anticipated write-downs create moral hazard in period 0; (ii) lenders may ration credit endogenously; (iii) legally and practically very difficult.
+
+\section{The Social Planner's Optimal Allocation}\label{sec:planner}
+
+\textbf{What is the planner trying to do?} We showed that when $B_1 > \bar{B}$, both borrowers and lenders are harmed by high aggregate debt --- the same-sign externality creates a net social loss. The question is: can a planner who internalises this externality do better than the market? Specifically, can she make \textit{everyone} better off (a Pareto improvement) by capping debt in period 0?
+
+\textbf{What does the planner choose, and what does the market determine?} The planner only intervenes in period 0. She directly chooses three things: how much each household works ($N_0^j$), how much each household consumes ($\tilde{C}_0^j$), and how much debt is carried into period 1 ($B_1$). From period 1 onward, the market takes over --- the planner does not re-optimise. This is captured by the value function $V^j(B_1^j, B_1)$, which is the \textit{market} continuation utility.
+
+\textbf{What are Pareto weights?} The planner needs to aggregate two groups' utilities into a single objective. Pareto weights $\gamma^j > 0$ are just the coefficients: $W = \gamma^b U^b + \gamma^l U^l$. Different weight ratios $\gamma^b/\gamma^l$ give different Pareto-efficient allocations and trace out the entire Pareto frontier. The FOC for $\tilde{C}_0^j$ derived below shows that the optimal ratio of weights is \textit{not} a free choice --- it is pinned down by that condition.
+
+\subsection{The planner's problem \& FOCs}
+
+Formally, the planner solves:
+\begin{equation}
+\begin{aligned}
+\max_{N_0^j,\, \tilde{C}_0^j,\, B_1} \quad & \sum_{j \in \{b,l\}} \gamma^j \Bigl[u(\tilde{C}_0^j) + \beta^j V^j(B_1^j, B_1)\Bigr] \\
+\text{subject to} \quad & B_1 = B_1^l = -B_1^b \qquad \text{(bonds in zero net supply)} \\
+& \tfrac{1}{2}\tilde{C}_0^b + \tfrac{1}{2}\tilde{C}_0^l = e^*(N_0^j) \qquad \text{(aggregate resource constraint)}
+\end{aligned}
+\end{equation}
+We solve this by taking the FOC for each choice variable in turn: first $N_0^j$, then $\tilde{C}_0^j$, then $B_1$.
+
+\textbf{\lapis[BoEacqua]{Hours}}. \ With GHH preferences, $u(\tilde{C}_0^j)$ does not depend on $N_0^j$ directly. Net output is $e^* = \max_N \{N - v(N)\}$, so the planner's FOC for $N_0^j$ is simply:
+\begin{equation}
+v'(N_0^j) = 1
+\end{equation}
+This is exactly the same condition as in the market equilibrium (where $w_0 = 1$ pins down labour supply). The planner does not distort the labour margin --- she inherits the efficient hours $N_0^j = N^*$ from the market. We can therefore treat $e^* = N^* - v(N^*)$ as a given constant and focus on the consumption and debt choices.
+
+\textbf{\lapis[BoEacqua]{Period 0 Consumption}} \ Write the full Lagrangian, attaching multiplier $\lambda$ to the aggregate resource constraint:
+\begin{equation}
+\mathcal{L} = \gamma^b\bigl[u(\tilde{C}_0^b) + \beta^b V^b\bigr] + \gamma^l\bigl[u(\tilde{C}_0^l) + \beta^l V^l\bigr] - \lambda\Bigl(\tfrac{1}{2}\tilde{C}_0^b + \tfrac{1}{2}\tilde{C}_0^l - e^*\Bigr)
+\end{equation}
+
+Differentiating with respect to $\tilde{C}_0^b$ and $\tilde{C}_0^l$ and setting to zero:
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial \tilde{C}_0^b}: \quad \gamma^b u'(\tilde{C}_0^b) = \frac{\lambda}{2}, \qquad \frac{\partial \mathcal{L}}{\partial \tilde{C}_0^l}: \quad \gamma^l u'(\tilde{C}_0^l) = \frac{\lambda}{2}
+\end{equation}
+
+Both equal the same $\lambda/2$, so:
+\begin{equation}
+\gamma^b u'(\tilde{C}_0^b) = \gamma^l u'(\tilde{C}_0^l) \implies \frac{\gamma^b}{\gamma^l} = \frac{u'(\tilde{C}_0^l)}{u'(\tilde{C}_0^b)}
+\end{equation}
+
+The planner distributes period-0 consumption so that the social marginal value of a unit of consumption is equalised across groups. If borrowers had a higher marginal utility than lenders (i.e., lower consumption), the planner would shift consumption from lenders to borrowers until marginal utilities are equalised. This is efficient redistribution in period 0. Crucially, since the weights are chosen to satisfy this condition at the market allocation, the planner is \textit{not} changing the period-0 distribution relative to the market --- she is only correcting the $B_1$ choice.
+
+We can also write: $\gamma^j = (\lambda/2)/u'(\tilde{C}_0^j)$. We will use this to eliminate $\gamma^j$ from the $B_1$ FOC.
+
+\textbf{\lapis[BoEacqua]{The debt choice}} \ Now we turn to the planner's choice of $B_1$. At this point, $\tilde{C}_0^j$ has already been pinned down by its own FOC --- it is a separate choice variable. This is why $u'(\tilde{C}_0^j)$ does \textit{not} appear in the $B_1$ FOC: the planner is not simultaneously choosing $B_1$ and $\tilde{C}_0^j$ in a linked way (as a household would via its budget constraint). Instead, $B_1$ affects welfare \textit{only through the continuation value} $V^j$, not through period-0 consumption.
+
+The planner chooses a single variable $B_1$. But $V^j$ depends on $B_1$ through two channels, so the chain rule gives two terms. The key to the signs is the zero-net-supply constraint: $B_1^b = -B_1$ and $B_1^l = +B_1$. So $dB_1^b/dB_1 = -1$ and $dB_1^l/dB_1 = +1$. This matters because when aggregate debt $B_1$ goes up by one unit, borrowers' own position \textit{falls} by one unit (they owe more), while lenders' own position \textit{rises} by one unit (they are owed more).
+
+Note that in Section~\ref{sec:ade} we found $\partial V^j/\partial B_1^j = u'(\tilde{C}_1^j) > 0$ for \textit{both} groups: more bonds is always good for whoever holds them. The sign difference in the chain rule does \textit{not} come from this derivative --- it comes from $dB_1^j/dB_1$. For borrowers:
+\begin{equation}
+\frac{dV^b}{dB_1} = \underbrace{\frac{\partial V^b}{\partial B_1^b}}_{=\,u'(\tilde{C}_1^b)\,>\,0} \cdot \underbrace{\frac{dB_1^b}{dB_1}}_{=\,-1} + \underbrace{\frac{\partial V^b}{\partial B_1}}_{=\,\delta^b} = -u'(\tilde{C}_1^b) + \delta^b
+\end{equation}
+The product is negative: more own bonds is good, but a rise in $B_1$ gives borrowers \textit{fewer} own bonds (they owe more). The second term is $\delta^b$, the externality channel the planner internalises.
+
+For lenders:
+\begin{equation}
+\frac{dV^l}{dB_1} = \underbrace{\frac{\partial V^l}{\partial B_1^l}}_{=\,u'(\tilde{C}_1^l)\,>\,0} \cdot \underbrace{\frac{dB_1^l}{dB_1}}_{=\,+1} + \underbrace{\frac{\partial V^l}{\partial B_1}}_{=\,\delta^l} = +u'(\tilde{C}_1^l) + \delta^l
+\end{equation}
+The product is positive: more own bonds is good, and a rise in $B_1$ gives lenders \textit{more} own bonds (they are owed more).
+
+Multiplying through by $\gamma^j\beta^j$ and applying to the planner's objective:
+\begin{equation}
+\begin{aligned}
+\frac{d}{dB_1}\bigl[\gamma^b\beta^b V^b\bigr] &= \gamma^b\beta^b\bigl[-u'(\tilde{C}_1^b) + \delta^b\bigr] \\
+\frac{d}{dB_1}\bigl[\gamma^l\beta^l V^l\bigr] &= \gamma^l\beta^l\bigl[+u'(\tilde{C}_1^l) + \delta^l\bigr]
+\end{aligned}
+\end{equation}
+
+Setting the sum to zero:
+\begin{equation}
+\lapisboxeq[color=BoEacqua]{-\gamma^b\beta^b\bigl[u'(\tilde{C}_1^b) - \delta^b\bigr] + \gamma^l\beta^l\bigl[u'(\tilde{C}_1^l) + \delta^l\bigr] = 0}
+\end{equation}
+
+\subsection{The planner's Euler equation}
+
+The $B_1$ FOC still contains $\gamma^j$. We eliminate them using the result from the consumption FOC: $\gamma^j = (\lambda/2)/u'(\tilde{C}_0^j)$. Substituting and dividing through by $\lambda/2$ (which is the same for both groups and therefore cancels):
+\begin{equation}
+-\frac{\beta^b\bigl[u'(\tilde{C}_1^b) - \delta^b\bigr]}{u'(\tilde{C}_0^b)} + \frac{\beta^l\bigl[u'(\tilde{C}_1^l) + \delta^l\bigr]}{u'(\tilde{C}_0^l)} = 0
+\end{equation}
+
+Rearranging gives the planner's Euler equation:
+\begin{equation}
+\lapisboxeq[color=BoEacqua]{\frac{\beta^l\bigl[u'(\tilde{C}_1^l) + \delta^l\bigr]}{u'(\tilde{C}_0^l)} = \frac{\beta^b\bigl[u'(\tilde{C}_1^b) - \delta^b\bigr]}{u'(\tilde{C}_0^b)}}
+\end{equation}
+
+The $u'(\tilde{C}_0^j)$ in the denominator comes from the consumption FOC above, not from any direct effect of $B_1$ on period-0 consumption. Compare this to the market equilibrium, where both Euler equations give:
+\begin{equation}
+\frac{\beta^l u'(\tilde{C}_1^l)}{u'(\tilde{C}_0^l)} = \frac{\beta^b u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)} = \frac{1}{1+r_0}
+\end{equation}
+The planner's condition is identical except $u'(\tilde{C}_1^j)$ is replaced by $u'(\tilde{C}_1^j) \pm \delta^j$. The $\delta^j$ terms are the externality corrections that individual households ignore.
+
+\textbf{What does the Euler equation imply? Three cases} \ We evaluate the planner's Euler equation for each possible range of $B_1$:
+
+\begin{itemize}
+    \item \textit{Case 1} ($B_1 < \bar{B}$, ZLB not binding): The externality is purely redistributive: $\delta^b = \eta u'(\tilde{C}_1^b) > 0$ and $\delta^l = -\eta u'(\tilde{C}_1^l) < 0$, where $\eta \equiv \frac{\phi}{(1+r_1)^2}\frac{-dr_1}{dB_1} > 0$. Substituting:
+    \begin{equation}
+    \frac{\beta^l(1-\eta)u'(\tilde{C}_1^l)}{u'(\tilde{C}_0^l)} = \frac{\beta^b(1-\eta)u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)}
+    \end{equation}
+    The $(1-\eta)$ cancels from both sides, recovering the market Euler equation exactly. No intervention needed: the externality is redistributive, not a net social loss.
+
+    \item \textit{Case 2} ($B_1 > \bar{B}$, ZLB binding): The externality is $\delta^j = -u'(\tilde{C}_1^j)$ for both groups. Substituting:
+    \begin{equation}
+    \text{LHS} = 0, \qquad \text{RHS} = \frac{2\beta^b u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)} > 0
+    \end{equation}
+    Zero cannot equal something positive: there is no interior solution above $\bar{B}$. The planner never chooses $B_1 > \bar{B}$.
+
+    \item \textit{Case 3} ($B_1 = \bar{B}$, at the threshold): At this point $V^j$ has a kink and is not differentiable. The appropriate tool is the subgradient, the generalisation of the derivative to non-differentiable functions. Instead of a single value, $\delta^j$ at $\bar{B}$ lies anywhere between its left- and right-limit, giving a range for each side:
+    \begin{equation}
+    \begin{aligned}
+    \text{LHS} &\in \left[0,\; \frac{\beta^l(1-\eta)u'(\tilde{C}_1^l)}{u'(\tilde{C}_0^l)}\right] \\[4pt]
+    \text{RHS} &\in \left[\frac{\beta^b(1-\eta)u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)},\; \frac{2\beta^b u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)}\right]
+    \end{aligned}
+    \end{equation}
+    A planner optimum at $B_1 = \bar{B}$ requires that the two subgradient intervals have non-empty intersection, i.e.\ that the upper bound of the LHS interval is at least as large as the lower bound of the RHS interval. The $(1-\eta)$ factor is common to both bounds being compared, so it cancels. The non-empty-intersection condition reduces to:
+    \begin{equation}
+    \beta^l \frac{u'(\tilde{C}_1^l)}{u'(\tilde{C}_0^l)} \;\geq\; \beta^b \frac{u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)}
+    \end{equation}
+    But this is exactly the private Euler condition evaluated from the left, that is, from the region $B_1 < \bar{B}$ where both households are interior:
+    \begin{equation}
+    \beta^l \frac{u'(\tilde{C}_1^l)}{u'(\tilde{C}_0^l)} \;=\; \beta^b \frac{u'(\tilde{C}_1^b)}{u'(\tilde{C}_0^b)} \;=\; \frac{1}{1+r_0}
+    \end{equation}
+    The inequality holds with equality: the two intervals share exactly one point, the common left-limit value $\frac{1}{1+r_0}$. Their intersection is a singleton, not an interval. When $B_1 < \bar{B}$, the two sides coincide because both households satisfy the same interior Euler equation. At $B_1 = \bar{B}$, by contrast, we are not equating two interior first-order conditions; we are checking whether the lender's subgradient interval and the borrower's subgradient interval have non-empty intersection. The lender's upper bound and the borrower's lower bound are precisely the left-limit values inherited from the interior region, so the two intervals touch at a single boundary point. A singleton intersection is sufficient for the planner's first-order condition to hold. Hence $B_1 = \bar{B}$ is always a valid planner solution when the unconstrained market outcome would otherwise lie to the right of $\bar{B}$.
+\end{itemize}
+
+\begin{notebox}
+\handbold{\underline{The Bottom Line:}}\medskip\\
+The three cases pin down the optimal policy, with a compact way to write the solution being $B_1^{SP}=\min\{B_1^{CE},\bar{B}\}$:
+\begin{itemize}
+    \item If $B_1^{CE}<\bar{B}$, the market equilibrium is constrained-optimal. Below the threshold the externality is purely redistributive, so the planner replicates the market allocation.
+    \item If $B_1^{CE}=\bar{B}$, the planner also chooses $\bar{B}$. This is the boundary case where planner and market coincide.
+    \item If $B_1^{CE}>\bar{B}$, the unconstrained market would over-borrow and enter the recession region. The planner prevents this by capping debt at $\bar{B}$.
+\end{itemize}
+Put differently, the planner lets the market choose debt up to the point where extra borrowing remains purely redistributive, but stops it once additional debt would reduce period-1 demand and output. The inefficient case is $B_1^{CE}>\bar{B}$, where the unrestricted market would move into the recession region.
+\end{notebox}
+
+
+\subsection{Implementation}
+
+The previous subsection characterised the planner's allocation: let the competitive equilibrium go through when $B_1^{CE}<\bar{B}$, but prevent the economy from moving into the recession region when $B_1^{CE}>\bar{B}$. The implementation question is how to decentralise that allocation with simple policy instruments. The key point is that intervention must be \textit{ex ante}, in period 0, when borrowers choose debt. Once period 1 arrives and the deleveraging shock has already hit, an ex-post debt write-down can be Pareto improving, but it also creates time-consistency and moral-hazard problems. Macroprudential policy therefore tries to replicate the planner's period-0 choice before the crisis state is realised.
+
+There are two natural instruments. One is a price instrument: tax borrowing so private households internalise the aggregate demand externality in their Euler equation. The other is a quantity instrument: directly cap debt at the threshold $\bar{B}$. Both are trying to implement the same object, namely the planner's choice of $B_1$.
+
+\textbf{Option 1: macroprudential tax on borrowing.} Tax borrowers at rate $\tau$ so they receive only $(1-\tau)/(1+r_0)$ units of period-0 consumption per unit borrowed. Relative to the laissez-faire equilibrium, the tax makes borrowing privately less attractive and shifts the competitive choice of $B_1$ leftward. In the deterministic benchmark, one chooses $\tau$ so that the decentralised equilibrium satisfies $B_1=\bar{B}$; tax revenue is then rebated lump-sum so the planner's desired date-0 distribution of consumption is preserved. Because the size of the externality is governed by $de_1/dB_1$, and because equation~\eqref{eq:multiplier-general} rewrites that object in terms of MPCs, the tax can be written in a way that links directly to observable household behaviour:
+\begin{equation}
+\tau = \frac{MPC_1^b - MPC_1^l}{1 - MPC_1^l}
+\end{equation}
+This formula makes the economic logic transparent: the tax is larger when debt transfers resources from households with a high MPC to households with a low MPC, because that is exactly when an extra unit of debt does the most damage to aggregate demand in the crisis state.
+
+With uncertainty (deleveraging occurs with probability $\pi$), the same logic applies in expected value:
+\begin{equation}
+\tau \approx \pi \cdot \frac{MPC_1^b - MPC_1^l}{1 - \overline{MPC}_1}
+\end{equation}
+The probability $\pi$ matters because a tax imposed in period 0 distorts borrowing in all states, including the states where the crisis never happens. A higher crisis probability raises the value of insurance against over-borrowing and therefore raises the optimal tax.
+
+\textbf{Calibration.} Using $\pi = 1/30$ (Reinhart--Rogoff crisis frequency), $MPC^b - MPC^l = 62\% - 36\% = 26\%$, $\overline{MPC} = 44\%$ (Jappelli--Pistaferri), gives $\tau \approx 1.5\%$ --- a \pounds 1.50 tax per \pounds 100 borrowed.
+
+\textbf{Option 2: legal debt limit.} Mandate $B_1^j > -\bar{B}$ for all households. This is the direct quantity analogue of the planner's solution: instead of charging for borrowing, the regulator simply prevents the economy from entering the region in which extra debt reduces period-1 demand and output. In the model, the hard limit is often the cleaner instrument because the planner's target is itself a threshold, $\bar{B}$.
+
+The comparison between the two instruments is the standard price-versus-quantity one. A tax leaves some flexibility and lets the market choose how much to borrow, but only after the borrowing margin has been distorted to reflect the externality. A hard debt limit is cruder, but also simpler and closer to what macroprudential authorities often do in practice through LTV, LTI, or debt-service restrictions.
+
+\textbf{Practical obstacles.} Most countries do not operate with a clean tax on debt. Fiscal systems often subsidise borrowing instead (for example through mortgage-related tax relief), there may be several different margins of borrowing to tax, and implementing the planner's allocation requires not only taxing debt but also making compensating transfers. That in turn requires coordination between fiscal and macroprudential authorities. For these reasons, real-world policymakers usually prefer quantity restrictions to Pigouvian debt taxes.
+
+%==================================================
+
+\section{Debt Limits in the Real World}\label{sec:debtlimits}
+
+The theory gives two implementation margins: tax debt or cap it. In practice, advanced economies overwhelmingly use the second. The reason is not mysterious. Debt taxes are hard to design, often run against the rest of the tax system, and require fiscal transfers to avoid undesirable redistribution. Quantity restrictions, by contrast, map directly into the underwriting standards that regulators and central banks can influence. This is why the model's legal debt limit is not just a theoretical curiosity: it is close to the form taken by macroprudential policy in reality.
+
+One reason debt taxes are difficult is that the existing tax system is often biased \textit{toward} leverage rather than against it. Many countries subsidise debt in one form or another; in addition, the relevant borrowing margin may run through mortgages, unsecured credit, buy-to-let lending, or corporate leverage, making the ``right'' tax base hard to isolate. Some countries also tax interest income on savings, which in the model resembles a higher period-0 return to saving, but that is not the same as a clean tax on socially excessive borrowing. This practical asymmetry is another reason why actual macroprudential policy usually relies on quantity tools.
+
+In the UK, macroprudential policy is set by the Financial Policy Committee (FPC). Its mandate is to identify, monitor, and take action to remove or reduce systemic risks with a view to protecting and enhancing the resilience of the UK financial system. Its two main policy levers are: (i) powers over the terms of residential mortgages; and (ii) powers over bank capital requirements. In addition, it can issue recommendations to the financial sector.
+
+In June 2014 the FPC recommended, and later directed, that no bank should have more than 15\% of its new mortgage lending at loan-to-income (LTI) ratios above 4.5. This is a quantity restriction on household leverage, directly analogous to the model's debt limit. Aggregate demand externalities, including the risk that a heavily indebted household sector amplifies a downturn through deleveraging, were part of the motivation. Other tools target closely related margins: loan-to-value (LTV) limits, which are even more common internationally, as well as debt-service or interest-coverage restrictions.
+
+Internationally, these kinds of interventions are common. The macroprudential database used in this literature covers 246 policy actions across 60 countries since 1990, many of them aimed precisely at housing credit conditions. So the model is speaking to an active policy margin, not an obscure institutional detail.
+
+\textbf{Empirical evidence (Schularick et al.).} Database of 246 macroprudential actions in 60 countries, focusing on 112 LTV limit changes. To address endogeneity: narrative approach, dropping actions correlated with current real variables, leaving 89 exogenous actions, with propensity-score weighting to correct for selection bias. Local projection:
+\begin{equation}
+X_{i,t+h} = \alpha_i^h + \beta^h \Delta LTV_{i,t} + \text{controls}_{i,t} + \varepsilon_{i,t+h}
+\end{equation}
+Their identification strategy is to isolate policy actions that are plausibly exogenous to current macroeconomic conditions: they drop interventions associated with output or inflation news, leaving 89 actions, and then use propensity-score weighting to correct for the non-random selection induced by that filtering step.
+
+Findings: LTV tightenings reduce credit significantly. Effects on real activity are present but are much stronger in emerging markets and modest in advanced economies. This fits the model reasonably well. Where monetary policy is less able to stabilise demand, or where financial shocks are more disruptive, the aggregate demand externality from household debt should be larger and ex-ante macroprudential policy more valuable.
+
+%==================================================
+
+\section{Leaning Against the Wind}\label{sec:mp}
+
+\textbf{Question.} If excessive borrowing creates a future recession, could the central bank simply ``lean against the wind'' by raising the period-0 interest rate above its flexible-price target? In other words, can tighter monetary policy in period 0 substitute for macroprudential policy?
+
+The relevant issue is a welfare trade-off across periods. If the central bank raises $r_0$, this may reduce borrowing and thereby attenuate the future recession in period 1. But the same policy can also depress current demand and current income in period 0. So to evaluate whether leaning against the wind helps, we need to know three comparative statics:
+\begin{enumerate}
+    \item what happens to current income $e_0$
+    \item what happens to borrowing $B_1$
+    \item therefore, what happens to recession-state income $e_1$
+\end{enumerate}
+
+Work in the interesting case in which the laissez-faire economy would otherwise enter the recession region, so $B_1 \geq \bar{B}$. In that region period-1 income satisfies
+\begin{equation}\label{eq:mp-recession-law}
+e_1 = \bar{C}_1^l - (B_1-\phi),
+\end{equation}
+because at the ZLB lenders are stuck at $\bar{C}_1^l$ and extra inherited debt lowers demand one-for-one. The borrower's period-1 consumption is therefore
+\begin{equation}\label{eq:mp-borrower-c1}
+\tilde{C}_1^b = e_1-(B_1-\phi) = \bar{C}_1^l-2(B_1-\phi).
+\end{equation}
+The factor of 2 is important: one unit comes from the borrower's larger repayment obligation, and the second unit comes from the induced fall in aggregate income.
+
+Substituting \eqref{eq:mp-recession-law} and \eqref{eq:mp-borrower-c1} into the two date-0 Euler equations gives
+\begin{equation}\label{eq:mp-date0-euler}
+\frac{1}{1+r_0}
+=
+\frac{\beta^l u'(\bar{C}_1^l)}{u'\!\left(e_0 + \bigl(B_0-\tfrac{B_1}{1+r_0}\bigr)\right)}
+=
+\frac{\beta^b u'\!\left(\bar{C}_1^l-2(B_1-\phi)\right)}{u'\!\left(e_0 - \bigl(B_0-\tfrac{B_1}{1+r_0}\bigr)\right)}.
+\end{equation}
+There are no missing superscripts here. At this point we have already imposed equilibrium zero net supply, so $B_0$ and $B_1$ denote the \textit{aggregate debt magnitude}, with
+\begin{equation}\label{eq:mp-zero-net-supply}
+B_0^l=B_0,\qquad B_0^b=-B_0,\qquad B_1^l=B_1,\qquad B_1^b=-B_1.
+\end{equation}
+That is why the lender's period-0 consumption is written as $e_0+\bigl(B_0-\tfrac{B_1}{1+r_0}\bigr)$ while the borrower's is $e_0-\bigl(B_0-\tfrac{B_1}{1+r_0}\bigr)$ in \eqref{eq:mp-date0-euler}.
+It is useful to define the net transfer from borrowers to lenders in period 0 as
+\begin{equation}\label{eq:mp-x0}
+x_0 \equiv B_0-\tfrac{B_1}{1+r_0}.
+\end{equation}
+Then current consumption is $\tilde{C}_0^l=e_0+x_0$ for lenders and $\tilde{C}_0^b=e_0-x_0$ for borrowers, and the ratio of the two Euler equations becomes
+\begin{equation}\label{eq:mp-ratio}
+\frac{\beta^l}{\beta^b}\frac{u'(\bar{C}_1^l)}{u'\!\left(\bar{C}_1^l-2(B_1-\phi)\right)}
+=
+\frac{u'(e_0+x_0)}{u'(e_0-x_0)}.
+\end{equation}
+
+\textbf{Step 1: current income.} The appendix slides show that tighter monetary policy causes a recession in period 0:
+\begin{equation}\label{eq:mp-de0}
+\frac{de_0}{dr_0}<0.
+\end{equation}
+This is the first reason monetary policy is a poor substitute for macroprudential policy: leaning against the wind immediately lowers demand today.
+
+\textbf{Step 2: borrowing.} The same appendix logic then implies
+\begin{equation}\label{eq:mp-db1}
+\frac{dB_1}{dr_0}>0.
+\end{equation}
+The clean way to see this is by contradiction. Suppose instead that tighter monetary policy reduced borrowing, so $dB_1/dr_0\leq0$. Then the left-hand side of \eqref{eq:mp-ratio} would weakly increase,\footnote{Let
+\[
+L(B_1)\equiv \frac{\beta^l}{\beta^b}\frac{u'(\bar C_1^l)}{u'(\bar C_1^l-2(B_1-\phi))}.
+\]
+Then
+\[
+\frac{dL}{dB_1}
+=
+\frac{\beta^l}{\beta^b}u'(\bar C_1^l)\,
+\frac{2u''(\bar C_1^l-2(B_1-\phi))}{\left[u'(\bar C_1^l-2(B_1-\phi))\right]^2}
+<0
+\]
+because $u'>0$ and $u''<0$. Hence
+\[
+\frac{dL}{dr_0}=\frac{dL}{dB_1}\frac{dB_1}{dr_0}\ge 0
+\]
+if $dB_1/dr_0\le 0$.} while the right-hand side of \eqref{eq:mp-ratio} would fall once we account for \eqref{eq:mp-de0} and the rise in the current net transfer \eqref{eq:mp-x0}. The equality in \eqref{eq:mp-ratio} could not be maintained. Therefore the equilibrium response must be the opposite, as stated in \eqref{eq:mp-db1}: tighter monetary policy raises period-0 borrowing.
+
+\textbf{Step 3: future income.} Once the sign of $dB_1/dr_0$ is known, differentiating \eqref{eq:mp-recession-law} with respect to $r_0$ and using \eqref{eq:mp-db1} gives
+\begin{equation}\label{eq:mp-de1}
+\frac{de_1}{dr_0} = -\frac{dB_1}{dr_0}<0.
+\end{equation}
+So tighter monetary policy not only lowers current income; in this benchmark case it also makes the future recession worse.
+
+\textbf{Why does borrowing rise in period 0?} There are two opposing forces.
+\begin{itemize}
+    \item \textit{Substitution effect:} a higher interest rate makes borrowing more expensive and by itself pushes toward lower $B_1$.
+    \item \textit{Income effect:} a higher interest rate lowers period-0 demand and reallocates income toward lenders. Borrowers are poorer today and want to borrow more to smooth consumption.
+\end{itemize}
+In this benchmark, the income effect dominates. Tighter policy creates a recession today, and that recession induces the impatient group to borrow more rather than less.
+
+This is closely related to Topic 3. Changes in policy that shift income toward low-MPC households weaken aggregate demand. Here the same mechanism operates through borrower-lender heterogeneity: tighter policy reallocates resources toward lenders, depresses current demand, and increases the borrowing incentive of the constrained or would-be-constrained group. That is why ``using the interest rate for macroprudential purposes'' is not reliable in this environment.
+
+The general lesson is therefore negative. Monetary policy is too blunt because it changes aggregate demand and the intertemporal price at the same time. In some alternative calibrations the substitution effect can dominate, but not in the benchmark taught here. Once a separate macroprudential instrument is available, the correct monetary-policy rule is simply
+\begin{equation}
+r_t = r_t^*
+\end{equation}
+and let macroprudential policy handle the borrowing distortion directly.
+
+%==================================================
+
+\section{Collateral Spirals and Firesale Externalities}\label{sec:firesale}
+
+\textbf{Motivation.} So far the deleveraging shock affected demand only through the transfer from borrowers to lenders. In reality, however, most household debt is collateralised, especially through housing. If asset prices fall, borrowing capacity falls with them. This creates an additional amplification mechanism: weak demand lowers asset prices, lower asset prices tighten borrowing constraints, and tighter borrowing constraints depress demand further. This is the collateral spiral.
+
+\textbf{Extending the model.} Suppose borrowers own a fixed asset $a_t$ that pays dividend $y$. The asset is in fixed supply, infinitely divisible, and can only be held by borrowers. Borrowers trade it among themselves at ex-dividend price $p_t$, while lenders do not hold it. The borrowing constraint now becomes
+\begin{equation}\label{eq:fs-collateral}
+\frac{B_{t+1}}{1+r_t} \leq \phi_{t+1} a_{t+1} p_t,
+\end{equation}
+where $\phi_{t+1}$ is the loan-to-value ratio. As before, period 1 is the deleveraging date: the constraint tightens after period 0. The difference is that now the tightness of the constraint depends not just on the exogenous parameter $\phi$, but also on the endogenous asset price $p_t$.
+
+The key new feature is that period 1 now has \emph{two} endogenous objects to solve for:
+\begin{equation}\label{eq:fs-unknowns}
+(e_1,p_1).
+\end{equation}
+In the baseline model, once debt $B_1$ was given, the recession analysis only had to determine income $e_1$. Here, a lower $e_1$ can also lower the asset price $p_1$, and a lower $p_1$ tightens the collateral constraint \eqref{eq:fs-collateral}. So income and asset prices have to be determined jointly.
+
+To simplify the period-1 algebra, assume that from period 1 onward the two groups have the same discount factor, $\beta^l=\beta^b=\beta$. Then for $t\geq2$ the economy settles into a steady state. Two objects are especially useful:
+\begin{equation}\label{eq:fs-p2}
+p_t = \frac{\beta}{1-\beta}y.
+\end{equation}
+\begin{equation}\label{eq:fs-b2}
+B_2 = \phi p_1.
+\end{equation}
+Equation \eqref{eq:fs-p2} is the usual present-value formula for the asset price from period 2 onward.\footnote{Start from the borrower's Euler equation for asset holdings:
+\[
+p_t\,u'(\tilde C_t^b)=\beta\,u'(\tilde C_{t+1}^b)\,(y+p_{t+1}).
+\]
+The left-hand side is the utility cost of buying one more unit of the asset today: the household pays price $p_t$. The right-hand side is the discounted utility benefit tomorrow: the asset pays dividend $y$ and can be resold for $p_{t+1}$. From period 2 onward we assume $\beta^b=\beta$ and the economy is in steady state, so $\tilde C_t^b=\tilde C_{t+1}^b$ and $p_t=p_{t+1}=p$. The marginal utilities therefore cancel, leaving
+\[
+p=\beta(y+p).
+\]
+Rearranging gives $p=\beta y/(1-\beta)$.} Equation \eqref{eq:fs-b2} says that once the deleveraging phase is over, borrowers choose the maximum debt allowed by the collateral constraint, and that debt capacity depends on the crisis-period asset price $p_1$.
+
+These two expressions imply the continuation consumptions
+\begin{equation}\label{eq:fs-c2}
+\tilde{C}_2^l=e^*+(1-\beta)\phi p_1,
+\qquad
+\tilde{C}_2^b=e^*+y-(1-\beta)\phi p_1.
+\end{equation}
+The term $(1-\beta)\phi p_1$ is the net debt service that remains in each steady-state period when debt is rolled over forever at the rate consistent with $\beta$. So unlike in the baseline model, post-crisis debt capacity and post-crisis consumption both depend on the crisis-period asset price.
+
+\textbf{Period 1 with collateral: what equations determine $(e_1,p_1)$?} Work again in the recession region, so the ZLB binds and $B_1>\bar{B}$. We need one equilibrium relation from the goods market / lenders' side, and one from the borrowers' asset-demand side.
+
+\textit{Step 1: the aggregate-demand relation.} In period 1, lenders receive repayment from borrowers. Their period-1 consumption is therefore
+\begin{equation}\label{eq:fs-c1l}
+\tilde{C}_1^l=e_1+B_1-\phi p_1.
+\end{equation}
+The term $B_1-\phi p_1$ is the amount borrowers have to pay down in period 1: they start with debt $B_1$ and can roll only $\phi p_1$ into period 2. Using \eqref{eq:fs-c2}, the lender's Euler equation becomes
+\begin{equation}\label{eq:fs-ad}
+u'\!\left(e_1 + B_1 - \phi p_1\right)
+=
+\beta u'\!\left(e^* + (1-\beta)\phi p_1\right).
+\end{equation}
+This is the analogue of the previous aggregate-demand equation. It tells us, for a given asset price $p_1$, what level of income $e_1$ is consistent with lenders being willing to absorb the deleveraging shock. For fixed $p_1$, more inherited debt $B_1$ still pushes income down as before. The difference is that a higher asset price now relaxes deleveraging by raising the amount borrowers can roll over.
+
+\textit{Step 2: the borrower's budget constraints.} Borrowers now use the asset both as a source of dividend income and as collateral. Their period-1 budget constraint is
+\begin{equation}\label{eq:fs-c1b-general}
+\tilde{C}_1^b
+=
+p_1(a_1-a_2)-B_1+\phi p_1 a_2+e_1+ya_1.
+\end{equation}
+Read \eqref{eq:fs-c1b-general} term by term:
+\begin{itemize}
+    \item $e_1+ya_1$ is current endowment plus the asset dividend
+    \item $-B_1$ is inherited debt due today
+    \item $p_1(a_1-a_2)$ is net revenue from selling assets
+    \item $\phi p_1 a_2$ is the new debt that can be issued against the assets carried into period 2
+\end{itemize}
+In equilibrium, the asset is in fixed supply and only borrowers hold it, so $a_1=a_2=1$. Then \eqref{eq:fs-c1b-general} simplifies to
+\begin{equation}\label{eq:fs-c1b}
+\tilde{C}_1^b = e_1 + y - B_1 + \phi p_1,
+\end{equation}
+which is the period-1 analogue of the baseline borrower budget constraint. A higher asset price raises $\tilde{C}_1^b$ directly because it relaxes the collateral constraint and lets borrowers roll over more debt.
+
+Using \eqref{eq:fs-c2}, the continuation budget constraint is
+\begin{equation}\label{eq:fs-c2b}
+\tilde{C}_2^b = e^* + y - (1-\beta)\phi p_1.
+\end{equation}
+
+\textit{Step 3: the asset-pricing relation.} The borrower chooses how much of the asset to carry into period 2. The first-order condition for $a_2$, together with \eqref{eq:fs-c1b} and \eqref{eq:fs-c2b}, implies
+\begin{equation}\label{eq:fs-ap}
+p_1
+=
+\frac{u'(\tilde{C}_2^b)}
+{(1-\phi)u'(\tilde{C}_1^b)+\beta\phi u'(\tilde{C}_2^b)}
+\cdot
+\frac{\beta y}{1-\beta}.
+\end{equation}
+This equation is easier to read if you separate the economics from the algebra. Buying one more unit of the asset has a current cost, but because the asset serves as collateral, part of that cost can be financed by extra borrowing. That is why current marginal utility appears with weight $(1-\phi)$ rather than weight $1$. Tomorrow the asset yields the dividend flow and can still support borrowing, which is why future marginal utility also enters. Equation \eqref{eq:fs-ap} is therefore the borrower's asset-demand curve.
+
+Together, \eqref{eq:fs-ad} and \eqref{eq:fs-ap} determine the two unknowns in \eqref{eq:fs-unknowns}.
+
+\textbf{Two-curve interpretation.} It is useful to think of these two equations as defining two upward-sloping curves in $(e_1,p_1)$ space:
+\begin{itemize}
+    \item an \textit{aggregate-demand curve}, $p^{AD}(e)$, from \eqref{eq:fs-ad}
+    \item an \textit{asset-pricing curve}, $p^{AP}(e)$, from \eqref{eq:fs-ap}
+\end{itemize}
+Why are both upward sloping? In \eqref{eq:fs-ad}, higher income raises lenders' current consumption. To keep their Euler equation satisfied, borrowers must then be able to roll over more debt, which requires a higher asset price. In \eqref{eq:fs-ap}, higher income makes borrowers less desperate to sell assets and increases their willingness to hold the asset, which also supports a higher price.
+
+An increase in inherited debt $B_1$ shifts these curves in opposite directions:
+\begin{itemize}
+    \item it shifts $p^{AD}(e)$ upward because, holding income fixed, more debt requires more rollover capacity to prevent lenders' current consumption from rising too much
+    \item it shifts $p^{AP}(e)$ downward because, holding income fixed, more debt makes borrowers more eager to liquidate assets and less willing to pay a high price for them
+\end{itemize}
+The equilibrium therefore features both lower income and a lower asset price. Relative to the baseline model, debt now hurts demand twice: directly through deleveraging and indirectly through the collapse in collateral values. That is the collateral spiral.
+
+\textbf{The new externality.} In the planner problem with $B_1>\bar{B}$, the borrower's continuation value now varies with aggregate debt through both income and the asset price:
+\begin{equation}\label{eq:fs-externality}
+\frac{\partial V^b}{\partial B_1}
+=
+\underbrace{\frac{de_1}{dB_1}u'(\tilde{C}_1^b)}_{\text{aggregate demand externality}}
++
+\underbrace{\phi\frac{dp_1}{dB_1}\left[u'(\tilde{C}_1^b)-\beta u'(\tilde{C}_2^b)\right]}_{\text{firesale externality}}.
+\end{equation}
+The first term in \eqref{eq:fs-externality} is the aggregate-demand externality from the baseline model. The second term is new. By borrowing more in period 0, borrowers force themselves to deleverage more in period 1; in doing so they sell more aggressively into a depressed asset market, push the asset price down further, and tighten everyone's collateral constraint. Individual borrowers do not internalise that they worsen the firesale for the group as a whole.
+
+\textbf{Bottom line.} Once collateral enters the model, over-borrowing is even more costly. It not only lowers future demand; it also depresses collateral prices and thereby shrinks future borrowing capacity endogenously. The policy implication is the same as before, but stronger: the planner wants tighter debt limits, or equivalently higher macroprudential taxes, because she now internalises both the aggregate-demand externality and the firesale externality.
+
+%==================================================
+
+\end{document}
