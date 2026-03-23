@@ -1,0 +1,22 @@
+\contentsline {section}{\numberline {I}Typography and Fonts}{2}{section.1}%
+\contentsline {subsection}{\numberline {I.A}Body Text}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {I.B}Handwriting Font}{2}{subsection.1.2}%
+\contentsline {subsection}{\numberline {I.C}Pencil Underlines}{2}{subsection.1.3}%
+\contentsline {section}{\numberline {II}Pencil Boxes}{2}{section.2}%
+\contentsline {subsection}{\numberline {II.A}Inline Boxes}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {II.B}Equation Boxes}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {II.C}Labeled boxes and pencil arrows}{3}{subsection.2.3}%
+\contentsline {section}{\numberline {III}Annotations and Notes}{3}{section.3}%
+\contentsline {subsection}{\numberline {III.A}Inline Todo Notes}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {III.B}Draft Annotations}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {III.C}Note Boxes}{3}{subsection.3.3}%
+\contentsline {section}{\numberline {IV}Mathematics}{3}{section.4}%
+\contentsline {subsection}{\numberline {IV.A}Standard Environments}{3}{subsection.4.1}%
+\contentsline {section}{\numberline {V}Tables}{4}{section.5}%
+\contentsline {subsection}{\numberline {V.A}Standard Tabularx}{4}{subsection.5.1}%
+\contentsline {subsection}{\numberline {V.B}Table with Row Colors}{4}{subsection.5.2}%
+\contentsline {section}{\numberline {VI}Paragraph Numbering}{4}{section.6}%
+\contentsline {section}{\numberline {VII}Pencil Arrows}{5}{section.7}%
+\contentsline {subsection}{\numberline {VII.A}Inline Directional Arrows}{5}{subsection.7.1}%
+\contentsline {subsection}{\numberline {VII.B}Overlay Arrows with \texttt {\textbackslash marker}}{5}{subsection.7.2}%
+\contentsline {section}{\numberline {VIII}Wiggle Option}{5}{section.8}%

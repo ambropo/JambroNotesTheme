@@ -1,0 +1,744 @@
+%% notesthemejambro.sty
+%% ===========================================================================
+%% Personal Notes Style — Jambro
+%% Author: Ambrogio Cesa-Bianchi
+%% Version: 1.0 — Mar 2026
+%% ===========================================================================
+%%
+%% DESCRIPTION:
+%% A clean article-based style for lecture and research notes. Features
+%% include: compact sans-serif typography (Cabin), hand-drawn pencil
+%% annotations via TikZ (underlines, inline boxes, equation boxes), shaded
+%% note boxes, inline todo notes, Roman-numeral section numbering, and
+%% numbered paragraph marks.
+%%
+%% USAGE:
+%% \documentclass[11pt,a4paper]{article}
+%% \usepackage{notesthemejambro}                    % defaults
+%% \usepackage[wiggle=1.4]{notesthemejambro}        % more expressive pencil
+%% \usepackage[hidememo]{notesthemejambro}      % suppress all \memo output
+%%
+%% OPTIONS:
+%% - wiggle=<n>      Amplitude of the pencil/sketch decoration in pt (default: 0.4).
+%%                   Larger values produce more pronounced hand-drawn wobble.
+%%                   Usage: \usepackage[wiggle=1.2]{notesthemejambro}
+%% - hidememo    Suppress all \memo{} output for clean/final compilation.
+%%                   Usage: \usepackage[hidememo]{notesthemejambro}
+%%
+%% PUBLIC COMMANDS:
+%% - \NB{text}                              Inline todo note (note-blue background)
+%% - \memo[user=u,color=c]{text}            Inline annotation; defaults: user="Comment", color=BoEred
+%% - \E                                Shorthand for \mathbb{E}
+%% - \hand                             Switch to Augie handwriting font
+%% - \handbold{text}                   Bold Augie handwriting (PDF stroke literal)
+%% - \lapis{text}                      Pencil underline — default carandache (gold)
+%% - \lapis[color]{text}               Pencil underline — custom color
+%% - \lapisbox{text}                   Pencil box — default gold, no label
+%% - \lapisbox[color=c,label=n]{text}  Pencil box — custom color and/or named node
+%% - \lapisboxeq{expr}                 Pencil box for display math
+%% - \lapisboxeq[color=c]{expr}        As above with custom color
+%% - \para                             Auto-numbered paragraph prefix (1.  2.  …)
+%% - \notesize                         8.5 pt font size for table annotations
+%% - \marker{name}{text}              Invisible TikZ anchor node for arrow targeting
+%% - \jarrowup[\dots]                 Inline pencil arrow pointing up
+%% - \jarrowdown[\dots]               Inline pencil arrow pointing down
+%% - \jarrowright[\dots]              Inline pencil arrow pointing right
+%% - \jarrowleft[\dots]               Inline pencil arrow pointing left
+%% - \jarrowu / \jarrowd / \jarrowr / \jarrowl  Shorthand aliases for the above
+%%   All \jarrow* accept: color=<name>, len=<dimen>, lw=<dimen>, pad=<dimen>
+%%
+%% PUBLIC ENVIRONMENTS:
+%% - notebox   Shaded blue callout box (breakable across pages)
+%%
+%% COLORS (key names for use in commands):
+%% - note         Medium blue  — headings, hyperlinks, note boxes
+%% - BoEblue      Dark navy    — recommended for title text
+%% - tomato        Warm red     — \memo annotations
+%% - carandache    Goldenrod    — default \lapis underline color
+%% - gold          Goldenrod    — default \lapisbox / \lapisboxeq color
+%% - cobalt        Teal         — general accent
+%% - BoEacqua/orange/purple/gold/gray/red  — extended BoE palette
+%% ===========================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{notesthemejambro}[2026/03/23 v1.0 Jambro Notes Style]
+
+
+%=============================================================================
+%  PACKAGE OPTIONS
+%-----------------------------------------------------------------------------
+% Two options: wiggle=<n> and hidememo.
+%
+% wiggle=<n>    Key=value option parsed by \DeclareOption* (catches all
+%               unrecognised options). Public name (no @ in macro name)
+%               required: PGF math re-tokenises macros inside \tikzset in
+%               document context, and an @ causes a crash.
+%
+% hidememo  Boolean flag. When true, \memo{} expands to nothing.
+%               Mirrors hidememo in beamerthemejambro.
+%=============================================================================
+
+% --- hidememo flag ---
+\newif\if@OptionHideMemo
+\@OptionHideMemofalse
+\DeclareOption{hidememo}{\@OptionHideMemotrue}
+
+% --- Default wiggle amplitude ---
+\newcommand{\jambronoteswiggleamp}{0.4pt}   % 0.4pt: subtle but visible
+
+% --- Parse unknown options of the form wiggle=<n> ---
+\DeclareOption*{%
+    \expandafter\@jambronotes@parseoption\CurrentOption=\@nil
+}
+\def\@jambronotes@parseoption#1=#2\@nil{%
+    \def\@jambronotes@optkey{#1}%
+    \def\@jambronotes@wigglekey{wiggle}%
+    \ifx\@jambronotes@optkey\@jambronotes@wigglekey
+        \global\def\jambronoteswiggleamp{#2pt}%  append pt unit
+    \fi
+}
+
+% \ProcessOptions* (starred) also forwards global \documentclass options,
+% so \documentclass[wiggle=1.2]{article} works alongside \usepackage[wiggle=1.2]{notesthemejambro}.
+\ProcessOptions*\relax
+
+
+%=============================================================================
+%  PACKAGE DEPENDENCIES
+%-----------------------------------------------------------------------------
+% All \usepackage calls in one place. Grouped by function.
+%=============================================================================
+
+% --- Text encoding ---
+\usepackage[utf8]{inputenc}     % UTF-8 source encoding
+
+% --- Mathematics ---
+\usepackage{amsmath}            % Core math environments (align, equation, …)
+\usepackage{amssymb}            % Extended math symbols (\mathbb, \mathcal, …)
+
+% --- Page layout ---
+\usepackage[hmargin={1in,1in},vmargin={1in,1in}]{geometry}  % 1-inch margins all around
+\usepackage{fancyhdr}           % Custom headers and footers
+\usepackage[bottom]{footmisc}   % Force footnotes to page bottom (not float-relative)
+\usepackage[section]{placeins}  % Prevent floats from crossing \section boundaries
+\interfootnotelinepenalty=10000 % Prevent footnotes from being split across pages
+
+% --- Font ---
+\usepackage[sfdefault]{cabin}   % Cabin sans-serif as the document default font
+
+% --- Color ---
+\usepackage[table]{xcolor}      % Color support; [table] enables \rowcolor etc.
+
+% --- Graphics and figures ---
+\usepackage{graphicx}           % \includegraphics
+\usepackage[labelsep=colon,labelfont=bf,sf,justification=centering]{caption}
+                                % Bold-sans labels ("Figure 1:"), centered captions
+
+% --- Tables ---
+\usepackage{booktabs}           % \toprule, \midrule, \bottomrule — professional rules
+\usepackage{tabularx}           % Tabular with auto-width X/Y columns
+\usepackage{makecell}           % Multi-line cells via \makecell
+\usepackage{chngcntr}           % Counter manipulation
+
+% --- Lists ---
+\usepackage{enumitem}           % Fine-grained list spacing control
+
+% --- Annotations and notes ---
+\setlength{\marginparwidth}{2cm}  % Required by todonotes (avoids layout warning)
+\usepackage{todonotes}            % \todo — used internally by \NB
+
+% --- Verbatim and code ---
+\usepackage{verbatim}           % verbatim environment and comment block
+\usepackage{fancyvrb}           % Enhanced verbatim (Verbatim with options)
+\usepackage{newverbs}           % \newverbcommand helper
+
+% --- Typography utilities ---
+\usepackage{relsize}            % \relsize, \smaller, \larger
+\usepackage{soul}               % \hl, \ul, \st (highlight, underline, strikethrough)
+\usepackage{anyfontsize}        % \fontsize{n}{m} without restriction
+\usepackage{setspace}           % \setstretch, \onehalfspacing, etc.
+
+% --- TikZ (loaded before tcolorbox to avoid option conflicts) ---
+\usepackage{tikz}               % Drawing engine for pencil effects and annotations
+
+% --- Boxes and callouts ---
+\usepackage[most]{tcolorbox}    % Framed/shaded boxes; [most] includes most libs
+\tcbuselibrary{listings,skins}  % Extra tcolorbox libraries for code and skin support
+
+% --- Section headings ---
+\usepackage{titlesec}           % \titleformat, \titlespacing
+
+% --- Hyperlinks (load last to avoid conflicts) ---
+% All link types use the `note` color defined below.
+\usepackage[colorlinks=true,linkcolor=note,citecolor=note,urlcolor=note]{hyperref}
+
+
+%=============================================================================
+%  COLOR DEFINITIONS
+%-----------------------------------------------------------------------------
+% All \definecolor calls in one place. Colors are used throughout for
+% headings, links, annotation commands, and pencil effects.
+%=============================================================================
+
+% --- Primary accent colors ---
+\definecolor{note}{RGB}{49,79,179}     % Medium blue — headings, links, note boxes
+\definecolor{title}{RGB}{7,40,91}      % Dark navy   — title block text
+\definecolor{tomato}{RGB}{217,83,79}   % Warm red    — \memo draft annotations
+\definecolor{cobalt}{RGB}{0,124,146}   % Teal        — general accent
+
+% --- Pencil / hand-drawn colors ---
+\definecolor{carandache}{RGB}{218,165,32}  % Goldenrod — default \lapis underline color
+\definecolor{gold}{RGB}{218,165,32}        % Goldenrod — default \lapisbox color
+                                           % (separate name for semantic clarity)
+
+% --- Bank of England palette (extended accent options) ---
+\definecolor{BoEblue}{RGB}{18,38,62}       % Dark navy  — recommended for title text
+\definecolor{BoEacqua}{RGB}{61,215,217}    % Bright teal
+\definecolor{BoEorange}{RGB}{255,114,0}    % Orange
+\definecolor{BoEpurple}{RGB}{159,112,225}  % Lavender
+\definecolor{BoEgold}{RGB}{213,175,54}     % Muted gold
+\definecolor{BoEgray}{RGB}{197,201,207}    % Light gray
+\definecolor{BoEred}{RGB}{254,1,91}        % Bright red
+
+
+%=============================================================================
+%  ENVIRONMENTS
+%-----------------------------------------------------------------------------
+%=============================================================================
+
+% --- notebox ---
+% A shaded blue callout block for important notes.
+% breakable: box may span page breaks without clipping.
+% colback/colframe both note!10 → shaded fill, no visible border.
+%
+% Usage:
+%   \begin{notebox}
+%     Important observation here.
+%   \end{notebox}
+\newtcolorbox{notebox}{
+    breakable,
+    colback=note!10,
+    colframe=note!10,
+}
+
+
+%=============================================================================
+%  FORMAT AND LAYOUT DEFAULTS
+%-----------------------------------------------------------------------------
+% Global spacing and list settings. Choices favor compact, dense notes
+% over the generous whitespace of a typical article class.
+%=============================================================================
+
+% --- Paragraph spacing ---
+\setlength{\parindent}{0cm}    % No first-line indent (rely on \parskip as separator)
+\setlength{\parskip}{0.2cm}    % Small gap between paragraphs
+
+% --- List spacing ---
+% All four parameters zeroed so itemize/enumerate sit tight,
+% consistent with the compact \parskip style above.
+\setlist[itemize]{noitemsep, topsep=0pt, parsep=0pt, partopsep=0pt}
+\setlist[enumerate]{noitemsep, topsep=0pt, parsep=0pt, partopsep=0pt}
+
+% --- Bullet style ---
+% Dash is less visually heavy than the default bullet at small sizes.
+\renewcommand\labelitemi{-}
+
+
+%=============================================================================
+%  GENERAL COMMANDS
+%-----------------------------------------------------------------------------
+%=============================================================================
+
+% --- \NB{text} ---
+% Inline todo note rendered as a shaded blue banner in the text flow.
+% Uses todonotes [inline] so it sits in the paragraph, not the margin.
+% Usage: \NB{Revisit this derivation.}
+\newcommand{\NB}[1]{\todo[color=note!40,inline]{#1}}
+
+% --- \E ---
+% Expectations operator shorthand.
+% Usage: $\E[X_t]$   $\E_t[R_{t+1}]$
+\newcommand{\E}{\mathbb{E}}
+
+% --- \memo[user=u,color=c]{text} ---
+% Inline draft annotation rendered in handwriting font with an underlined username prefix.
+%
+% Document-level defaults (set once in preamble):
+%   \renewcommand{\memouser}{ACB}       % change default username
+%   \renewcommand{\memocolor}{BoEred}   % change default color (any defined color name)
+%
+% Per-call overrides via optional key=value argument:
+%   user=<name>    overrides \memouser for this call only
+%   color=<name>   overrides \memocolor for this call only
+%
+% When the hidememo package option is active, \memo expands to nothing.
+%
+% Usage:
+%   \memo{Check this.}                         → default user/color
+%   \memo[user=JB]{Check this.}                → custom user, default color
+%   \memo[color=note]{Check this.}             → default user, custom color
+%   \memo[user=JB,color=cobalt]{Check this.}   → fully custom
+%
+% Preamble lines to set persistent defaults:
+%   \renewcommand{\memouser}{ACB}      % your initials
+%   \renewcommand{\memocolor}{BoEred}  % any defined color
+\newcommand{\memouser}{Memo}   % document-level default username
+\newcommand{\memocolor}{BoEred}   % document-level default color
+
+\makeatletter
+\pgfkeys{
+    /memo/.is family, /memo,
+    user/.estore  in=\memo@user,
+    color/.estore in=\memo@color,
+}
+
+\newcommand{\memo}[2][]{%
+    \if@OptionHideMemo\else
+        % Initialise from document-level defaults, then apply per-call overrides
+        \def\memo@user{\memouser}%
+        \def\memo@color{\memocolor}%
+        \pgfkeys{/memo, #1}%
+        \noindent\textcolor{\memo@color}{{\hand\small\underline{\memo@user}: #2}}%
+    \fi
+}
+\makeatother
+
+
+%=============================================================================
+%  HANDWRITING FONT
+%-----------------------------------------------------------------------------
+% The Augie font simulates handwriting. Declared early because \hand is
+% referenced inside pencil commands below.
+%=============================================================================
+
+% --- \hand ---
+% Switches the current font to Augie.
+% Usage: {\hand Some handwritten text.}
+\DeclareRobustCommand{\hand}{%
+    \fontfamily{augie}\selectfont%
+}
+\DeclareTextFontCommand{\textaugie}{\hand}  % Synonym: \textaugie{text}
+
+% --- \handbold{text} ---
+% Bold handwriting via a PDF stroke-width literal.
+% Mode 2 ("fill + stroke") with stroke width 0.6pt approximates bold
+% when no true bold variant of Augie exists.
+% Literals are restored to normal (0pt stroke, mode 0) after the argument.
+% Usage: \handbold{Key term}
+\newcommand{\handbold}[1]{%
+    {\hand\pdfliteral direct{0.6 w 2 Tr}#1\pdfliteral direct{0 w 0 Tr}}%
+}
+
+
+%=============================================================================
+%  TIKZ: SKETCH DECORATION AND STYLES
+%-----------------------------------------------------------------------------
+% Defines the "sketch" decoration that generates hand-drawn paths, and the
+% named TikZ styles that apply it. All pencil commands (\lapis, \lapisbox,
+% \lapisboxeq) build on these styles.
+%=============================================================================
+
+\usetikzlibrary{calc,decorations,patterns,arrows,decorations.pathmorphing}
+
+\makeatletter
+
+% --- PGF global decoration parameters ---
+% randomness: variance of the random phase increment per segment (higher = wobblier)
+% wavelength: period of the sinusoidal offset in arbitrary PGF units
+\pgfset{
+    /pgf/decoration/randomness/.initial=2,
+    /pgf/decoration/wavelength/.initial=150
+}
+
+% --- sketch decoration ---
+% A PGF finite-state decoration that replaces a straight segment with a
+% sinusoidal path whose phase is randomly perturbed at each step.
+%
+% States:
+%   init  — zero-width setup; initialises phase accumulator to 0.
+%   draw  — advances by one segment length; computes new phase from previous
+%            phase plus a random increment scaled by /randomness; appends a
+%            line-to offset vertically by amplitude × sin(phase).
+%   final — noop (PGF requirement).
+\pgfdeclaredecoration{sketch}{init}{
+    \state{init}[width=0pt,next state=draw,
+        persistent precomputation={\pgfmathsetmacro\pgf@lib@dec@sketch@t0}]{}%
+    \state{draw}[
+        width=\pgfdecorationsegmentlength,
+        auto corner on length=\pgfdecorationsegmentlength,
+        persistent precomputation={
+            \pgfmathsetmacro\pgf@lib@dec@sketch@t{
+                mod(\pgf@lib@dec@sketch@t
+                    + pow(\pgfkeysvalueof{/pgf/decoration/randomness}, rand),
+                \pgfkeysvalueof{/pgf/decoration/wavelength})
+            }
+        }]{
+        \pgfmathparse{
+            sin(2*\pgf@lib@dec@sketch@t*pi/\pgfkeysvalueof{/pgf/decoration/wavelength}r)
+        }
+        \pgfpathlineto{
+            \pgfqpoint{\pgfdecorationsegmentlength}%
+                      {\pgfmathresult\pgfdecorationsegmentamplitude}
+        }
+    }
+    \state{final}{}
+}
+
+\makeatother
+
+% --- Named TikZ styles ---
+%
+% pencil         Core hand-drawn path style. Applies the sketch decoration
+%                with segment length 1.2pt. Amplitude comes from
+%                \jambronoteswiggleamp (set by the wiggle= package option,
+%                default 0.8pt). Color is carandache (goldenrod) by default.
+%
+% nstyle         Node style for invisible text-anchor nodes used by \lapis and
+%                \lapisbox. Zero inner sep so the node bbox matches the text exactly.
+%
+% tstyle         Scope style for the first tikzpicture in pencil commands (the
+%                one that places the invisible anchor node). Needs remember picture
+%                so the overlay picture can reference the node by name.
+%
+% tpstyle        Scope style for the second (overlay) tikzpicture that draws the
+%                underline or box. overlay suppresses its bbox contribution so it
+%                does not affect text flow or line spacing.
+%
+% pencilboxstyle Default node style for \lapisbox. Overridden locally inside
+%                each \lapisbox / \lapisboxeq call to inject the caller's color.
+%
+% arrow          Pencil-effect directed line (->). Shorthand for tikzpicture
+%                overlays: \draw[arrow] (node.south) to[bend right] +(0,-0.5);
+%
+% snake          Wavy squiggle without arrow tip (built-in snake decoration).
+%                Useful for emphasis marks or wavy underline annotations.
+\tikzset{
+    pencil/.style={
+        carandache,
+        line width=0.05cm,
+        decorate,
+        decoration={
+            sketch,
+            segment length=1.2pt,              % Fixed segment length
+            amplitude=\jambronoteswiggleamp    % Controlled by wiggle= option (default 0.4pt)
+        }
+    },
+    nstyle/.style={inner sep=0pt, anchor=base},
+    tstyle/.style={remember picture, baseline},
+    tpstyle/.style={overlay, remember picture},
+    pencilboxstyle/.style={
+        pencil, draw,
+        line width=0.05cm,
+        inner xsep=0.5pt, inner ysep=0.5pt,
+        baseline
+    },
+    % Pencil-effect arrow for use in tikzpicture overlays
+    arrow/.style={pencil, carandache, line width=0.05cm, ->},
+    % Wavy squiggle line (uses built-in TikZ snake decoration)
+    snake/.style={
+        decorate,
+        carandache,
+        line width=0.05cm,
+        decoration={snake, post length=1.5mm, pre length=1.5mm}
+    }
+}
+
+
+%=============================================================================
+%  PENCIL COMMANDS — PUBLIC API
+%-----------------------------------------------------------------------------
+% Three user-facing commands for hand-drawn annotations in text and math.
+% All rely on the sketch decoration and styles defined above.
+%=============================================================================
+
+% --- \lapis[color]{text} ---
+% Draws a hand-drawn (pencil-effect) underline beneath inline text.
+%
+% Mechanism: two overlapping tikzpictures share coordinate space via
+% remember picture. The first (tstyle) places an invisible anchor node at
+% the text baseline. The second (tpstyle, overlay) draws a sketch-decorated
+% line between the node's base west and base east anchors, 0.5ex below the
+% baseline. The trailing \hspace{-0.025cm} corrects a small rightward shift
+% from TikZ's baseline alignment.
+%
+% Usage:
+%   \lapis{some text}          — carandache (goldenrod) underline
+%   \lapis[tomato]{some text}  — custom color underline
+\newcommand{\lapis}[2][]{%
+    \def\FirstArg{#1}%
+    \ifx\FirstArg\empty
+        \tikz[tstyle]{\node[nstyle](node1){#2}}%
+        \begin{tikzpicture}[tpstyle]
+            \draw[pencil,very thick]
+                ([yshift=-0.5ex]node1.base west)
+                to ([yshift=-0.5ex]node1.base east);
+        \end{tikzpicture}%
+        \hspace{-0.025cm}%
+    \else
+        \tikz[tstyle]{\node[nstyle](node1){#2}}%
+        \begin{tikzpicture}[tpstyle]
+            \draw[pencil,very thick,#1]
+                ([yshift=-0.5ex]node1.base west)
+                to ([yshift=-0.5ex]node1.base east);
+        \end{tikzpicture}%
+        \hspace{-0.025cm}%
+    \fi
+}
+
+% --- \lapisbox[color=c,label=n]{text} ---
+% Draws a pencil-effect rectangle around inline text.
+%
+% Options (pgfkeys, /pencilbox family):
+%   color=<name>   Color of the pencil rectangle. Default: gold.
+%   label=<name>   If set, names the TikZ node with remember picture, enabling
+%                  cross-reference arrow targeting from other tikzpictures.
+%
+% Implementation notes:
+%   - The color is injected into pencilboxstyle via a local \tikzset after
+%     pgfkeys resolution. This avoids PGF math retokenizing \lapisbox@color
+%     (which contains @) in document context, which causes a PGF crash.
+%   - \raisebox{0pt}[0pt][0pt] wraps the tikzpicture to suppress any
+%     vertical space contribution to the surrounding line.
+%   - \hspace{-0.1cm} at the end corrects TikZ's rightward baseline shift.
+%
+% Usage:
+%   \lapisbox{text}
+%   \lapisbox[color=tomato]{text}
+%   \lapisbox[label=mynode]{text}
+%   \lapisbox[color=cobalt,label=box1]{text}
+\makeatletter
+\pgfkeys{
+    /pencilbox/.is family, /pencilbox,
+    label/.estore in=\lapisbox@label,
+    color/.estore in=\lapisbox@color,
+}
+\def\lapisbox@label{}
+\def\lapisbox@color{gold}
+
+\newcommand{\lapisbox}[2][]{%
+    \pgfkeys{/pencilbox, #1}%
+    \tikzset{
+        pencilboxstyle/.style={
+            pencil, draw, \lapisbox@color!80,
+            line width=0.04cm,
+            fill=yellow!0,          % Transparent fill (explicit 0 prevents tcolorbox clash)
+            inner xsep=1.2pt, inner ysep=1.4pt,
+            baseline
+        }
+    }%
+    \hspace{0cm}%
+    \raisebox{0pt}[0pt][0pt]{%
+        \ifx\lapisbox@label\@empty
+            % No label: anonymous node, not referenceable from other pictures
+            \tikz[baseline=(X.base), remember picture]{%
+                \node[pencilboxstyle, text=.] (X) {\strut #2};
+            }
+        \else
+            % Named node: registered with remember picture for arrow targeting
+            \tikz[baseline=(\lapisbox@label.base), remember picture]{%
+                \node[pencilboxstyle, text=.=] (\lapisbox@label) {\strut #2};
+            }
+        \fi
+    }%
+    \hspace{-0.1cm}%
+}
+
+% --- \lapisboxeq[color=c]{expr} ---
+% Pencil-effect box for display math.
+% Wraps the argument in $\displaystyle...$ so the caller does not need to
+% enter math mode. Padding is larger than \lapisbox (4pt/5pt vs 1pt/1pt)
+% to give display-size math room to breathe.
+% Uses the same /pencilbox pgfkeys family as \lapisbox; no label support.
+%
+% Usage:
+%   \lapisboxeq{Y = \alpha + \beta X}
+%   \lapisboxeq[color=tomato]{Y = \alpha + \beta X}
+\newcommand{\lapisboxeq}[2][]{%
+    \pgfkeys{/pencilbox, #1}%
+    \tikzset{
+        pencilboxstyle/.style={
+            pencil, draw, \lapisbox@color!80,
+            line width=0.04cm,
+            fill=yellow!0,
+            inner xsep=4pt, inner ysep=5pt,
+            baseline
+        }
+    }%
+    \tikz[baseline=(X.base)]{
+        \node[pencilboxstyle, text=black] (X) {$\displaystyle #2$};
+    }%
+}
+\makeatother
+
+
+%=============================================================================
+%  PENCIL-STYLE ARROWS — PUBLIC API
+%-----------------------------------------------------------------------------
+% Inline pencil arrows and the \marker anchor helper. Ported from
+% beamerthemejambro.sty. All four directional commands share a common
+% internal drawing helper (\jarrow@draw) and a pgfkeys family (/jarrow).
+%=============================================================================
+
+% --- \marker{name}{text} ---
+% Creates an invisible TikZ node in the text flow, registered with
+% remember picture so it can be targeted by arrows in a later overlay
+% tikzpicture. The node bbox exactly matches the text (inner sep=0pt).
+%
+% Usage:
+%   The \marker{eq1}{Euler equation} can be annotated later with \jarrowup.
+\newcommand{\marker}[2]{%
+    \tikz[remember picture, baseline=(#1.base)]{%
+        \node[nstyle, name=#1] (#1) {\strut #2};%
+    }%
+}
+
+% --- Inline pencil arrows: \jarrowup / \jarrowdown / \jarrowright / \jarrowleft ---
+% Each draws a small baseline-aligned arrow with the sketch pencil effect.
+% Baseline is set to -0.5ex so the arrow center sits on the math axis.
+%
+% Options (via pgfkeys, /jarrow family):
+%   color=<name>   Arrow color.       Default: carandache
+%   len=<dimen>    Arrow length.      Default: 0.35cm
+%   lw=<dimen>     Line width.        Default: 0.05cm
+%   pad=<dimen>    Space around arrow (affects bbox). Default: 0.25em
+%
+% Usage:
+%   GDP growth \jarrowup\ accelerated.
+%   \jarrowdown[color=tomato]          → red downward arrow
+%   \jarrowr[len=0.6cm,lw=0.1cm]      → longer, thicker right arrow
+%
+% Shorthand aliases (defined below): \jarrowu  \jarrowd  \jarrowr  \jarrowl
+\pgfkeys{
+    /jarrow/.is family, /jarrow,
+    color/.estore in=\jarrowColor,
+    len/.estore in=\jarrowLen,
+    lw/.estore in=\jarrowLineWidth,
+    pad/.estore in=\jarrowPad,
+}
+\def\jarrowColor{carandache}
+\def\jarrowLen{0.35cm}
+\def\jarrowLineWidth{0.05cm}
+\def\jarrowPad{0.25em}
+
+\makeatletter
+% Internal helper: draws arrow from #1 to #2 inside a sized bounding box.
+% A half-interword-space rightward shift compensates for space eaten by
+% optional-argument scanning (same fix as in beamerthemejambro).
+\newcommand{\jarrow@draw}[2]{%
+    \pgfmathsetlengthmacro{\jarrow@half}{\jarrowLen/2}%
+    \pgfmathsetlengthmacro{\jarrow@pad}{\jarrow@half+\jarrowPad}%
+    \newdimen\jarrow@iws\jarrow@iws=\fontdimen2\font
+    \pgfmathsetlengthmacro{\jarrow@shift}{0.5*\the\jarrow@iws}%
+    \tikz[baseline=-0.5ex]{%
+        \useasboundingbox ({-\jarrow@pad+\jarrow@shift},-\jarrow@pad)
+            rectangle ({\jarrow@pad+\jarrow@shift},\jarrow@pad);
+        \draw[pencil, \jarrowColor, line width=\jarrowLineWidth, ->]
+            #1 -- #2;
+    }%
+}
+
+\newcommand{\jarrowup}[1][]{%
+    \def\jarrowColor{carandache}\def\jarrowLen{0.35cm}%
+    \def\jarrowLineWidth{0.05cm}\def\jarrowPad{0.25em}%
+    \pgfkeys{/jarrow, #1}%
+    \jarrow@draw{(0,-\jarrow@half)}{(0,\jarrow@half)}%
+}
+\newcommand{\jarrowdown}[1][]{%
+    \def\jarrowColor{carandache}\def\jarrowLen{0.35cm}%
+    \def\jarrowLineWidth{0.05cm}\def\jarrowPad{0.25em}%
+    \pgfkeys{/jarrow, #1}%
+    \jarrow@draw{(0,\jarrow@half)}{(0,-\jarrow@half)}%
+}
+\newcommand{\jarrowright}[1][]{%
+    \def\jarrowColor{carandache}\def\jarrowLen{0.35cm}%
+    \def\jarrowLineWidth{0.05cm}\def\jarrowPad{0.25em}%
+    \pgfkeys{/jarrow, #1}%
+    \jarrow@draw{(-\jarrow@half,0)}{(\jarrow@half,0)}%
+}
+\newcommand{\jarrowleft}[1][]{%
+    \def\jarrowColor{carandache}\def\jarrowLen{0.35cm}%
+    \def\jarrowLineWidth{0.05cm}\def\jarrowPad{0.25em}%
+    \pgfkeys{/jarrow, #1}%
+    \jarrow@draw{(\jarrow@half,0)}{(-\jarrow@half,0)}%
+}
+% Shorthand aliases
+\let\jarrowu\jarrowup
+\let\jarrowd\jarrowdown
+\let\jarrowr\jarrowright
+\let\jarrowl\jarrowleft
+\makeatother
+
+
+%=============================================================================
+%  TABLES
+%-----------------------------------------------------------------------------
+%=============================================================================
+
+% --- \notesize ---
+% Custom font size for footnote/annotation text inside tables.
+% 8.5pt body / 9.0pt leading — smaller than \footnotesize, tighter than \tiny.
+% Usage: {\notesize Source: ONS (2024).}
+\makeatletter
+\newcommand*\notesize{\@setfontsize\notesize{8.5}{9.0}}
+\makeatother
+
+% --- Row stretch ---
+% 1.15 adds a small amount of vertical padding to every row, improving
+% readability without needing manual \vspace in individual cells.
+\renewcommand{\arraystretch}{1.15}
+
+% --- Y column type ---
+% Centered auto-width column for tabularx. Equivalent to X but centered.
+% \leavevmode required to prevent \centering from consuming leading hspace.
+% Usage: \begin{tabularx}{\linewidth}{lYYY}
+\newcolumntype{Y}{>{\centering\arraybackslash\leavevmode}X}
+
+
+%=============================================================================
+%  SECTION AND HEADING FORMATTING
+%-----------------------------------------------------------------------------
+% Sections:    Large bold sans-serif, note-blue, uppercased.
+%              Numbered with Roman numerals (I, II, III …).
+% Subsections: large bold sans-serif, note-blue, uppercased.
+%              Numbered Roman.Alpha (I.A, I.B …).
+%=============================================================================
+
+\titleformat{\section}
+    {\Large\bfseries\sffamily\color{note}}   % Format
+    {\thesection}                            % Label
+    {1em}                                    % Label–title gap
+    {}                                       % No transform — title case as written
+
+\titleformat{\subsection}
+    {\large\bfseries\sffamily\color{note}}
+    {\thesubsection}
+    {1em}
+    {}
+
+% Vertical spacing: {left indent}{space before}{space after}
+\titlespacing*{\section}{0pt}{*3}{0.1em}
+\titlespacing*{\subsection}{0pt}{*2}{0.1em}
+
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\Roman{section}.\Alph{subsection}}
+
+
+%=============================================================================
+%  PARAGRAPH NUMBERING
+%-----------------------------------------------------------------------------
+% A manual counter for numbered paragraphs. Separate from \paragraph heading
+% to allow flexible placement (mid-text, after equations, etc.).
+%=============================================================================
+
+\newcounter{paranum}
+\renewcommand{\theparanum}{\arabic{paranum}.}   % Format: 1.  2.  3. …
+
+% --- \para ---
+% Increments the counter and typesets the number followed by a quad of space.
+% \leavevmode ensures it works at the start of a paragraph (vertical mode)
+% without inserting a blank line before the number.
+%
+% Usage:
+%   \para First numbered paragraph.
+%   \para Second numbered paragraph.
+\newcommand{\para}{\leavevmode\refstepcounter{paranum}\theparanum\quad}

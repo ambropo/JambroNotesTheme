@@ -1,0 +1,277 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{notesthemejambro}
+\renewcommand{\memouser}{ACB}      % default username (your initials)
+\renewcommand{\memocolor}{BoEred}  % default color
+
+%==================================================
+\title{\vspace{-2cm}\color{BoEblue}
+\textbf{notesthemejambro.sty}\\[0.3em]
+\Large Feature Demo\\[0.3em]
+\large v1.0 --- \textit{\today}
+}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+\vspace{-1cm}
+%==================================================
+
+%==================================================
+\section{Typography and Fonts}
+%==================================================
+
+\subsection{Body Text}
+%--------------------------------------------------
+
+The default font is \textbf{Cabin} (sans-serif), loaded via \texttt{[sfdefault]\{cabin\}}. All body text, headings, and captions use this family. Math is rendered in the standard Computer Modern math fonts alongside Cabin.
+
+A short paragraph: The quick brown fox jumps over the lazy dog. Numbers: 0123456789. Greek: $\alpha, \beta, \gamma, \delta, \epsilon$. Operators: $\sum_{i=1}^{n} x_i$, $\int_0^\infty e^{-x}\,dx$.
+
+\subsection{Handwriting Font}
+%--------------------------------------------------
+
+The Augie font is available for hand-drawn effects:
+
+\begin{itemize}
+    \item {\hand This sentence is set in the Augie handwriting font.}
+    \item \handbold{This sentence uses handbold — bold Augie via PDF stroke literal.}
+    \item Mixed: regular text alongside {\hand handwritten words} in the same line.
+\end{itemize}
+
+\subsection{Pencil Underlines}
+%--------------------------------------------------
+
+\lapis{Default underline} uses the \texttt{carandache} color (goldenrod). A custom color is passed as an optional argument:
+
+\begin{itemize}
+    \item \lapis{carandache gold} — default
+    \item \lapis[tomato]{tomato red}
+    \item \lapis[note]{note blue}
+    \item \lapis[cobalt]{cobalt teal}
+    \item \lapis[BoEpurple]{BoE purple}
+\end{itemize}
+
+Underlines work inside longer sentences too: the model predicts that \lapis{output falls} whenever the borrowing constraint \lapis[tomato]{binds}.
+
+%==================================================
+\section{Pencil Boxes}
+%==================================================
+
+\subsection{Inline Boxes}
+%--------------------------------------------------
+
+\lapisbox{Default gold box} uses no options. Custom colors:
+
+\begin{itemize}
+    \item \lapisbox{gold} — default
+    \item \lapisbox[color=tomato]{tomato}
+    \item \lapisbox[color=note]{note blue}
+    \item \lapisbox[color=cobalt]{cobalt}
+    \item \lapisbox[color=BoEpurple]{BoE purple}
+\end{itemize}
+
+Boxes work mid-sentence: the key result is that \lapisbox[color=note]{$\beta > 0$} whenever agents are impatient.
+
+\subsection{Equation Boxes}
+%--------------------------------------------------
+
+\texttt{\textbackslash lapisboxeq} wraps display math in a pencil box without requiring the caller to enter math mode:
+\[
+    \lapisboxeq{Y_t = C_t + I_t + G_t + NX_t}
+    \qquad
+    \lapisboxeq[color=tomato]{r_t = \rho + \phi_\pi(\pi_t - \bar\pi) + \phi_y \tilde y_t}
+\]
+
+It also works inline: the steady-state condition is \lapisboxeq{r = \rho}.
+
+\subsection{Labeled boxes and pencil arrows}
+%--------------------------------------------------
+
+Boxes with \texttt{label=} create named TikZ nodes that can be targeted by arrows in a subsequent \texttt{tikzpicture}. Compile \textbf{twice} for cross-picture references to resolve.
+
+
+\begin{itemize}
+    \item The \lapisbox[color=note,label=demand]{aggregate demand} externality 
+    \item The \lapisbox[color=tomato,label=firesale]{firesale} externality
+\end{itemize}
+\begin{tikzpicture}[tpstyle]
+    \draw[pencil,->,tomato!80] ([yshift=-2pt]firesale.south east) to[bend right] +(+0.7,-0.5) node[anchor=west,opacity=1,tomato] {\hand A comment};
+\end{tikzpicture}
+
+%==================================================
+\section{Annotations and Notes}
+%==================================================
+
+\subsection{Inline Todo Notes}
+%--------------------------------------------------
+
+\NB{This is an inline note produced by \texttt{\textbackslash NB\{...\}}. It uses the \texttt{note} blue background from \texttt{todonotes}.}
+
+Todo notes are useful for flagging gaps during drafting. They sit in the text flow (not the margin) and are easy to search.
+
+\subsection{Draft Annotations}
+%--------------------------------------------------
+
+\memo{Default user (ACB, set in preamble via \texttt{\textbackslash renewcommand\{\textbackslash memouser\}\{ACB\}}) and default color (BoEred).}
+
+\memo[user=JB,color=note]{Custom user and color via optional key=value argument.}
+
+\memo[color=cobalt]{Color-only override — username still comes from \texttt{\textbackslash memouser}.}
+
+Regular text continues after the annotation without extra spacing.
+
+\subsection{Note Boxes}
+%--------------------------------------------------
+
+A \texttt{notebox} is a breakable shaded callout:
+
+\begin{notebox}
+    \textbf{Key result.} In the Korinek--Simsek (2016) model, competitive borrowers do not internalise that their deleveraging reduces aggregate income. The social planner internalises this and chooses a lower debt level in period 0.
+\end{notebox}
+
+Note boxes accept arbitrary content including math and itemize:
+
+\begin{notebox}
+    \textbf{Two externalities.}
+    \begin{itemize}
+        \item \textbf{Aggregate demand}: deleveraging $\Rightarrow$ lower income $\Rightarrow$ tighter constraint.
+        \item \textbf{Firesale}: forced selling $\Rightarrow$ lower asset prices $\Rightarrow$ lower collateral.
+    \end{itemize}
+    Both generate over-borrowing in equilibrium.
+\end{notebox}
+
+%==================================================
+\section{Mathematics}
+%==================================================
+
+\subsection{Standard Environments}
+%--------------------------------------------------
+
+The \texttt{\textbackslash E} shorthand gives the expectations operator:
+\[
+    \E_t\left[\frac{u'(C_{t+1})}{u'(C_t)}\frac{1+r_{t+1}}{1+\pi_{t+1}}\right] = 1
+\]
+
+A multi-line derivation using \texttt{align}:
+\begin{align}
+    C_t^b + B_{t+1} &= y_t + (1+r_t)B_t \\
+    B_{t+1}         &\leq \phi \label{eq:constraint}\\
+    \lambda_t       &= u'(C_t^b) - \beta^b(1+r_t)\E_t[u'(C_{t+1}^b)] \geq 0
+\end{align}
+
+%==================================================
+\section{Tables}
+%==================================================
+
+\subsection{Standard Tabularx}
+%--------------------------------------------------
+
+The \texttt{Y} column type is a centered auto-width \texttt{X} column. The \texttt{\textbackslash notesize} command produces 8.5pt annotation text below the table.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of externality types}
+\begin{tabularx}{0.85\linewidth}{lYY}
+    \toprule
+    & \textbf{Aggregate demand} & \textbf{Firesale} \\
+    \midrule
+    Mechanism   & Spending $\to$ income & Prices $\to$ collateral \\
+    Affected by & Borrower deleveraging & Asset sales \\
+    Policy tool & Debt tax / limit & LTV cap \\
+    Model       & Korinek--Simsek & Lorenzoni \\
+    \bottomrule
+\end{tabularx}
+\\[0.4em]
+{\notesize Note: Both mechanisms generate over-borrowing in competitive equilibrium.}
+\end{table}
+
+\subsection{Table with Row Colors}
+%--------------------------------------------------
+
+The \texttt{[table]} option on \texttt{xcolor} enables \texttt{\textbackslash rowcolor}:
+
+\begin{table}[h!]
+\centering
+\caption{Model parameters}
+\begin{tabularx}{0.7\linewidth}{lYY}
+    \toprule
+    \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+    \midrule
+    \rowcolor{note!8} Discount factor (borrower) & $\beta^b$ & 0.90 \\
+    Discount factor (lender)  & $\beta^l$ & 0.95 \\
+    \rowcolor{note!8} Borrowing limit           & $\phi$    & 0.75 \\
+    Frisch elasticity         & $\varphi$ & 1.00 \\
+    \rowcolor{note!8} Price rigidity            & $\kappa$  & 0.50 \\
+    \bottomrule
+\end{tabularx}
+\end{table}
+
+%==================================================
+\section{Paragraph Numbering}
+%==================================================
+
+Numbered paragraphs use \texttt{\textbackslash para}. The counter increments automatically and typesets a number followed by a quad of space.
+
+\para This is the first numbered paragraph. The number is produced by \texttt{\textbackslash para} and counts independently of section numbers. It is useful for notes that cross-reference specific arguments.
+
+\para This is the second numbered paragraph. The borrowing constraint $B_{t+1} \leq \phi$ is assumed to bind in period 1 but not in period 0.
+
+\para This is the third numbered paragraph. The social planner internalises the aggregate demand externality and imposes a tax $\tau^*$ on period-0 borrowing.
+
+\begin{notebox}
+    Paragraphs~1--3 above illustrate that \texttt{\textbackslash para} works alongside \texttt{notebox} and other environments. Cross-referencing via \texttt{\textbackslash label} / \texttt{\textbackslash ref} works because \texttt{\textbackslash para} calls \texttt{\textbackslash refstepcounter}.
+\end{notebox}
+
+%==================================================
+\section{Pencil Arrows}
+%==================================================
+
+\subsection{Inline Directional Arrows}
+%--------------------------------------------------
+
+The \texttt{\textbackslash jarrow*} commands produce small baseline-aligned pencil arrows. All four directions are available:
+
+\begin{itemize}
+    \item Up:    GDP growth \jarrowup\ accelerated in Q3.
+    \item Down:  Inflation \jarrowdown\ fell below target.
+    \item Right: The effect propagates \jarrowright\ through the banking sector.
+    \item Left:  Demand shifted \jarrowleft\ after the shock.
+\end{itemize}
+
+Custom options via key=value: \jarrowup[color=tomato]\ (tomato), \jarrowr[len=0.6cm,lw=0.1cm]\ (long, thick), \jarrowd[color=note,pad=0.1em]\ (tight blue).
+
+\subsection{Overlay Arrows with \texttt{\textbackslash marker}}
+%--------------------------------------------------
+
+\texttt{\textbackslash marker\{name\}\{text\}} places an invisible anchor node. A subsequent overlay \texttt{tikzpicture} can draw an \texttt{arrow}-style line to it. Compile \textbf{twice} for cross-picture references to resolve.
+
+Consider the \marker{fisherA}{Fisher equation} and the \marker{quantA}{quantity theory}:
+\begin{tikzpicture}[tpstyle]
+    \draw[arrow] ([yshift=-3pt]fisherA.south) to[bend right=20] +(+0.2,-0.6)
+        node[anchor=north west] {\hand links $r$ and $\pi$};
+    \draw[arrow,note] ([yshift=-3pt]quantA.south) to[bend right=20] +(-0.2,-0.6)
+        node[anchor=north west] {\hand links $M$ and $P$};
+\end{tikzpicture}
+\vspace{1.5cm}
+
+%==================================================
+\section{Wiggle Option}
+%==================================================
+
+The pencil amplitude is controlled by the \texttt{wiggle=} package option:
+
+\begin{itemize}
+    \item \texttt{\textbackslash usepackage\{notesthemejambro\}} $\to$ default amplitude (0.8pt)
+    \item \texttt{\textbackslash usepackage[wiggle=0.3]\{notesthemejambro\}} $\to$ subtle
+    \item \texttt{\textbackslash usepackage[wiggle=1.5]\{notesthemejambro\}} $\to$ expressive
+\end{itemize}
+
+This document uses the default. Recompile with a different option to compare:
+\[
+    \lapisboxeq{Y = \alpha + \beta X + \varepsilon} \qquad
+    \lapis{underline at default wiggle}
+\]
+
+\end{document}
