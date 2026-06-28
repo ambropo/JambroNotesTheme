@@ -1,6 +1,6 @@
-# notesthemejambro
+# Jambro Notes Theme
 
-A LaTeX style for **lecture notes, working notes, and technical handouts** with a light "pencil-sketch" aesthetic: hand-drawn underlines and boxes, sketched arrows, shaded call-outs, numbered boxes and paragraphs, and a clean sans-serif body. Built for economics/quantitative notes but useful anywhere.
+Ambrogio Cesa-Bianchi's theme for **lecture notes, working notes, and technical handouts** with a light "pencil-sketch" aesthetic: hand-drawn underlines and boxes, sketched arrows, shaded call-outs, numbered boxes and paragraphs, and a clean sans-serif body. Built for economics/quantitative notes but useful anywhere.
 
 A fully worked feature showcase is in **[`Demo.tex`](Demo.tex)** — see the rendered **[`Demo.pdf`](Demo.pdf)**.
 
@@ -8,7 +8,7 @@ A fully worked feature showcase is in **[`Demo.tex`](Demo.tex)** — see the ren
 
 ---
 
-## Installation
+## Getting Started
 
 Drop `notesthemejambro.sty` next to your `.tex` file (or anywhere in your `TEXMF` tree) and load it:
 
