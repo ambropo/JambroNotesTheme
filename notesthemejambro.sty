@@ -7,7 +7,8 @@
 %%
 %% DESCRIPTION:
 %% A clean article-based style for lecture and research notes. Features
-%% include: compact sans-serif typography (Cabin), hand-drawn pencil
+%% include: clean sans-serif typography (Source Sans Pro body, Fira Sans headings),
+%% hand-drawn pencil
 %% annotations via TikZ (underlines, inline boxes, equation boxes), shaded
 %% note boxes, inline todo notes, Roman-numeral section numbering, and
 %% numbered paragraph marks.
@@ -30,7 +31,8 @@
 %% - \memo[user=u,color=c]{text}             Inline annotation; defaults: user="Memo", color=BoEred
 %% - \E                                      Shorthand for \mathbb{E}
 %% - \hand                                   Switch to Augie handwriting font
-%% - \handbold{text}                         Bold Augie handwriting (PDF stroke literal)
+%% - \handbold[width]{text}                  Bold Augie handwriting (PDF stroke literal; width default 0.6)
+%% - \handdotfill                            Stretchable leader of handwriting dots
 %% - \lapis{text}                            Pencil underline — default carandache (gold)
 %% - \lapis[color]{text}                     Pencil underline — custom color
 %% - \lapisbox{text}                         Pencil box — default gold, no label
@@ -38,6 +40,13 @@
 %% - \lapisboxeq{expr}                       Pencil box for display math
 %% - \lapisboxeq[color=c]{expr}              As above with custom color
 %% - \para                                   Auto-numbered paragraph prefix (1.  2.  …)
+%% - \boxentry{title}                        Inside a notebox: number it ("Box X.Y"), add dotted header + LoB entry
+%% - \listofboxes                            Typeset the List of Boxes
+%% - \tocheading{title}                      Unnumbered heading injected into the TOC stream
+%% - \backmatter                             Switch to lettered appendix numbering (A, B, …) and restart it; keeps hyperref anchors unique
+%% - \mc{code}                               Inline code chip (light gray bg, black text, \mcsize)
+%% - \mci{code}                              Inline code chip at the surrounding font size
+%% - \codesize / \mcsize                     Code font sizes (9 pt block / 10 pt inline)
 %% - \notesize                               Notes-style override of LaTeX \notesize (8.5 pt)
 %% - \marker{name}{text}                     Named TikZ node around visible text for arrow targeting
 %% - \jarrowup[\dots]                        Inline pencil arrow pointing up
@@ -48,23 +57,26 @@
 %%   All \jarrow* accept: color=<name>, len=<dimen>, lw=<dimen>, pad=<dimen>
 %%
 %% PUBLIC ENVIRONMENTS:
-%% - notebox   Shaded blue callout box (breakable across pages)
+%% - notebox   Shaded blue callout box (breakable). Add \boxentry{...} inside to number it.
+%% - code      Verbatim code listing (light gray background, all-black monochrome)
 %%
 %% PUBLIC TIKZ STYLES:
 %% - arrow     Pencil-effect directed line for overlay annotations
 %%
 %% COLORS (key names for use in commands):
-%% - note         Medium blue  — headings, hyperlinks, note boxes
-%% - BoEblue      Dark navy    — recommended for title text
+%% - title        Dark blue    — title, section/heading text, TOC (matches VAR Toolbox Handbook)
+%% - note         Medium/light blue — references (hyperlinks, citations), note boxes
+%% - BoEblue      Dark navy    — extended palette (alternative title navy)
 %% - tomato       Warm red     — \memo annotations
 %% - carandache   Goldenrod    — default \lapis underline color
 %% - gold         Goldenrod    — default \lapisbox / \lapisboxeq color
 %% - cobalt       Teal         — general accent
+%% - codegray     Light gray   — code environment / inline code background
 %% - BoEacqua/orange/purple/gold/gray/red  — extended BoE palette
 %% ===========================================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{notesthemejambro}[2026/03/23 v1.1-dev Jambro Notes Style]
+\ProvidesPackage{notesthemejambro}[2026/06/28 v1.1-dev Jambro Notes Style]
 
 
 %=============================================================================
@@ -130,7 +142,23 @@
 \interfootnotelinepenalty=10000 % Prevent footnotes from being split across pages
 
 % --- Font ---
-\RequirePackage[sfdefault]{cabin}   % Cabin sans-serif as the document default font
+% Body text is set in Source Sans Pro; section headings in Fira Sans (applied
+% via \firatitle in the SECTION AND HEADING FORMATTING block).
+%
+% LOAD ORDER MATTERS. In the pdfLaTeX (type1) path FiraSans.sty *unconditionally*
+% renews \sfdefault to the Fira family (its `sfdefault` option only gates whether
+% \familydefault is also changed). We therefore load FiraSans FIRST, then
+% sourcesanspro with [default] LAST: sourcesanspro's [default] edefs both
+% \sfdefault and \familydefault to the Source Sans Pro family, so the body
+% genuinely resolves to Source Sans Pro and nothing clobbers it afterwards.
+% Do NOT re-add \renewcommand{\familydefault}{\sfdefault} here: it would re-point
+% \familydefault at the live \sfdefault macro, which any later sans package could
+% overwrite. Headings are unaffected because \firatitle selects FiraSans-OsF by
+% explicit \fontfamily, independent of \sfdefault.
+\RequirePackage{FiraSans}                            % Fira families for headings
+\RequirePackage[default,scaled=1.0]{sourcesanspro}   % Source Sans Pro as the body/default sans
+% \firatitle — switch the current font to Fira Sans; used in heading formats.
+\newcommand{\firatitle}{\fontfamily{FiraSans-OsF}\selectfont}
 
 % --- Color ---
 \RequirePackage[table]{xcolor}      % Color support; [table] enables \rowcolor etc.
@@ -174,6 +202,11 @@
 % --- Section headings ---
 \RequirePackage{titlesec}           % \titleformat, \titlespacing
 
+% --- Tables of contents / lists ---
+% Provides \newlistof (used for the List of Boxes) and the \cft* hooks used to
+% style the main TOC. Must load before hyperref so the latter can patch it.
+\RequirePackage{tocloft}
+
 % --- Hyperlinks (load last to avoid conflicts) ---
 % All link types use the `note` color defined below.
 \RequirePackage[colorlinks=true,linkcolor=note,citecolor=note,urlcolor=note]{hyperref}
@@ -187,8 +220,9 @@
 %=============================================================================
 
 % --- Primary accent colors ---
-\definecolor{note}{RGB}{49,79,179}     % Medium blue — headings, links, note boxes
-\definecolor{title}{RGB}{7,40,91}      % Dark navy   — title block text
+\definecolor{note}{RGB}{49,79,179}     % Medium/light blue — references (links, citations), note boxes
+\definecolor{title}{RGB}{0,0,90}       % Dark blue   — title and all section/heading text
+                                       % (matches the VAR Toolbox Handbook `section`/`title` color)
 \definecolor{tomato}{RGB}{217,83,79}   % Warm red    — \memo draft annotations
 \definecolor{cobalt}{RGB}{0,124,146}   % Teal        — general accent
 
@@ -196,6 +230,9 @@
 \definecolor{carandache}{RGB}{218,165,32}  % Goldenrod — default \lapis underline color
 \definecolor{gold}{RGB}{218,165,32}        % Goldenrod — default \lapisbox color
                                            % (separate name for semantic clarity)
+
+% --- Code listing background ---
+\definecolor{codegray}{gray}{0.95}         % Light gray — code environment / inline code chips
 
 % --- Bank of England palette (extended accent options) ---
 \definecolor{BoEblue}{RGB}{18,38,62}       % Dark navy  — recommended for title text
@@ -217,6 +254,11 @@
 % breakable: box may span page breaks without clipping.
 % colback/colframe both note!10 → shaded fill, no visible border.
 %
+% A bare notebox is unnumbered and has no header (the default, backwards
+% compatible behavior). Numbering, a dotted "Box X.Y" header, and a
+% List-of-Boxes entry appear ONLY when \boxentry{title} is called as the first
+% line inside the box (see \boxentry below).
+%
 % Usage:
 %   \begin{notebox}
 %     Important observation here.
@@ -225,6 +267,52 @@
     breakable,
     colback=note!10,
     colframe=note!10,
+}
+
+% --- Box numbering and List of Boxes (opt-in via \boxentry) ---
+% boxcounter resets each section. Box numbers are formatted "<arabic section>.<Alph box>",
+% e.g. "1.A", matching the VAR Handbook convention. Arabic section numbers are used
+% deliberately even though \section is Roman, to keep box labels compact and legible.
+% \p@boxcounter supplies the section prefix so that \refstepcounter sets \@currentlabel
+% to the full "1.A" form, making \label/\ref inside a box resolve to the box number.
+\newcounter{boxcounter}[section]
+\renewcommand{\theboxcounter}{\Alph{boxcounter}}
+\makeatletter
+\renewcommand{\p@boxcounter}{\arabic{section}.}
+\makeatother
+
+% List of Boxes — a tocloft float list written to the .lob file.
+% Display it with \listofboxes (auto-defined by \newlistof).
+\newlistof{boxes}{lob}{List of Boxes}
+\setlength{\cftboxesindent}{0em}
+\setlength{\cftboxesnumwidth}{5.5em}
+\renewcommand{\cftboxespresnum}{Box~}
+% Match the "Contents" title: \newlistof defaults this to \Huge\bfseries in the
+% body font/black, which made "List of Boxes" larger and darker than "Contents".
+% NOTE: tocloft names the TITLE-font macro after the list EXTENSION (lob), not
+% the type (boxes) used by the entry hooks above. Keep these tokens identical to
+% \cfttoctitlefont (TOC styling block below).
+\renewcommand{\cftlobtitlefont}{\Large\bfseries\firatitle\color{title}}
+
+% --- \boxentry{title} ---
+% Call as the FIRST line inside a notebox to turn it into a numbered box:
+%   - increments boxcounter (and sets \@currentlabel for \label/\ref),
+%   - typesets a centered dotted header "···· Box X.Y ····" in handwriting,
+%   - adds "Box X.Y  title" to the List of Boxes.
+% Omit \boxentry for a plain, unnumbered, header-less notebox.
+%
+% Usage:
+%   \begin{notebox}
+%     \boxentry{The running example}\label{box:example}
+%     Body text ...
+%   \end{notebox}
+\newcommand{\boxentry}[1]{%
+    \refstepcounter{boxcounter}%
+    \noindent\handdotfill\enskip
+        {\handbold{Box~\arabic{section}.\theboxcounter}}%
+        \enskip\handdotfill\par\nopagebreak
+    \addcontentsline{lob}{boxes}{%
+        \protect\numberline{\arabic{section}.\theboxcounter}#1}%
 }
 
 
@@ -238,6 +326,14 @@
 % --- Paragraph spacing ---
 \setlength{\parindent}{0cm}    % No first-line indent (rely on \parskip as separator)
 \setlength{\parskip}{0.2cm}    % Small gap between paragraphs
+
+% --- Overflow tolerance ---
+% Notes prose frequently embeds long unbreakable \verb spans (command names,
+% environment names). With a wide sans body these can be stranded at line-end and
+% produce Overfull \hbox warnings. \emergencystretch lets TeX add extra interword
+% stretch as a LAST resort to avoid running into the margin, trading a slightly
+% looser line for a clean box. 3em is enough for typical inline-verbatim cases.
+\setlength{\emergencystretch}{3em}
 
 % --- List spacing ---
 % All four parameters zeroed so itemize/enumerate sit tight,
@@ -326,15 +422,27 @@
 }
 \DeclareTextFontCommand{\textaugie}{\hand}  % Synonym: \textaugie{text}
 
-% --- \handbold{text} ---
+% --- \handbold[width]{text} ---
 % Bold handwriting via a PDF stroke-width literal.
-% Mode 2 ("fill + stroke") with stroke width 0.6pt approximates bold
-% when no true bold variant of Augie exists.
+% Mode 2 ("fill + stroke") with the given stroke width (in PDF user units,
+% ≈ pt) approximates bold when no true bold variant of Augie exists.
+% The optional width defaults to 0.6; pass a smaller value for a lighter
+% stroke or 0 for normal weight.
 % Literals are restored to normal (0pt stroke, mode 0) after the argument.
-% Usage: \handbold{Key term}
-\newcommand{\handbold}[1]{%
-    {\hand\pdfliteral direct{0.6 w 2 Tr}#1\pdfliteral direct{0 w 0 Tr}}%
+% Usage:
+%   \handbold{Key term}        — default stroke (0.6)
+%   \handbold[0.3]{Lighter}    — custom stroke width
+\newcommand{\handbold}[2][0.6]{%
+    {\hand\pdfliteral direct{#1 w 2 Tr}#2\pdfliteral direct{0 w 0 Tr}}%
 }
+
+% --- \handdotfill ---
+% A leader of evenly spaced handwriting dots that stretches to fill the line,
+% used for the dotted \boxentry header. Dots are drawn at normal weight
+% (\handbold[0]) so the leader stays light.
+% Usage: \noindent\handdotfill\enskip{\handbold{Box 1.A}}\enskip\handdotfill
+\newcommand{\handdotfill}{%
+    \leavevmode\xleaders\hbox{\handbold[0]{$\cdot$}\hspace{0.4em}}\hfill\kern0pt}
 
 
 %=============================================================================
@@ -664,6 +772,69 @@
 
 
 %=============================================================================
+%  CODE LISTINGS
+%-----------------------------------------------------------------------------
+% A language-agnostic verbatim listing block and matching inline code chips.
+% Deliberately monochrome: all code is set in black on a light-gray background
+% (no syntax highlighting), for a clean, neutral look in notes. Built on the
+% tcolorbox `listings` library (loaded above).
+%=============================================================================
+
+% --- Code font sizes ---
+% \codesize for listing blocks, \mcsize for inline chips. Kept slightly smaller
+% than body text so code does not dominate the page.
+\makeatletter
+\newcommand*\codesize{\@setfontsize\codesize{9.0}{10.5}}
+\newcommand*\mcsize{\@setfontsize\mcsize{10.0}{11.5}}
+\makeatother
+
+% --- listings style: monochrome ---
+% Every token class is black; no language is fixed, so the block renders any
+% code verbatim with line breaking and tab handling.
+\lstdefinestyle{jambrocode}{%
+    basicstyle=\codesize\ttfamily\color{black},
+    keywordstyle=\color{black},
+    commentstyle=\color{black},
+    stringstyle=\color{black},
+    identifierstyle=\color{black},
+    numbers=none,
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    tabsize=4,
+    keepspaces=true,
+    columns=flexible,
+    frame=none,
+    extendedchars=true,
+}
+
+% --- code environment ---
+% A breakable, light-gray listing box. Content is taken verbatim.
+% Usage:
+%   \begin{code}
+%   x = 1 + 2;       % any code, set verbatim in black on light gray
+%   \end{code}
+\newtcblisting{code}{%
+    listing only,
+    listing options={style=jambrocode},
+    colback=codegray,
+    colframe=codegray,      % no visible border (frame color = fill)
+    boxrule=0pt,
+    arc=2pt,
+    left=4pt, right=4pt, top=3pt, bottom=3pt,
+    before skip=6pt, after skip=6pt,
+    breakable,
+}
+
+% --- \mc{code} / \mci{code} ---
+% Inline code chips: monospace black text on a light-gray background.
+% \mc sets the chip at \mcsize; \mci inherits the surrounding size.
+% Usage: call \mc{addpath(...)}, or refer to the \mci{x} variable.
+\newcommand{\mc}[1]{\colorbox{codegray}{\mcsize\ttfamily #1}}
+\newcommand{\mci}[1]{\colorbox{codegray}{\ttfamily #1}}
+
+
+%=============================================================================
 %  TABLES
 %-----------------------------------------------------------------------------
 %=============================================================================
@@ -672,9 +843,12 @@
 % Defines the notes theme's small-print switch at 8.5pt so table notes,
 % captions, and other compact text stay visually consistent throughout the
 % document. This is a deliberate override of LaTeX's usual notes-size role.
+% Leading is set solid (8.5pt) rather than the usual ~1.2x: table notes are
+% typically several wrapped lines of small print, and a tight leading keeps the
+% block compact and visually subordinate to the table it annotates.
 % Usage: {\notesize Source: ONS (2024).}
 \makeatletter
-\newcommand*\notesize{\@setfontsize\notesize{8.5}{9.0}}
+\newcommand*\notesize{\@setfontsize\notesize{8.5}{8.5}}
 \makeatother
 
 % --- Row stretch ---
@@ -692,20 +866,24 @@
 %=============================================================================
 %  SECTION AND HEADING FORMATTING
 %-----------------------------------------------------------------------------
-% Sections:    Large bold sans-serif, note-blue, uppercased.
+% Sections:    Large bold Fira Sans, dark blue (title color), uppercased.
 %              Numbered with Roman numerals (I, II, III …).
-% Subsections: large bold sans-serif, note-blue, uppercased.
+% Subsections: large bold Fira Sans, dark blue (title color), uppercased.
 %              Numbered Roman.Alpha (I.A, I.B …).
+% Headings use \firatitle (Fira Sans) to contrast with the Helvetica body.
+% The dark-blue `title` color (vs. the lighter `note` used for links) matches
+% the VAR Toolbox Handbook, which sets headings in dark blue and references
+% in the lighter note blue.
 %=============================================================================
 
 \titleformat{\section}
-    {\Large\bfseries\sffamily\color{note}}   % Format
+    {\Large\bfseries\firatitle\color{title}}  % Format (Fira Sans headings)
     {\thesection}                            % Label
     {1em}                                    % Label–title gap
     {}                                       % No transform — title case as written
 
 \titleformat{\subsection}
-    {\large\bfseries\sffamily\color{note}}
+    {\large\bfseries\firatitle\color{title}}
     {\thesubsection}
     {1em}
     {}
@@ -719,6 +897,54 @@
 
 
 %=============================================================================
+%  TABLE OF CONTENTS AND FRONT/BACK MATTER
+%-----------------------------------------------------------------------------
+% TOC styling consistent with the heading look (Fira Sans, note blue), with
+% number boxes widened to fit Roman labels such as "VIII" / "VIII.A" without
+% colliding with the entry titles. Also a \tocheading for unnumbered headings
+% in the TOC stream, and \backmatter for appendix-style section restarts.
+%=============================================================================
+
+% --- TOC title and entry fonts ---
+% "Contents" title at \Large, in the dark-blue `title` color (see headings).
+% \cftboxestitlefont (List of Boxes block above) is kept identical so both
+% front-matter titles share size, weight, font, and color.
+\renewcommand{\cfttoctitlefont}{\Large\bfseries\firatitle\color{title}}
+% Section entries bold (title + page number) to match the body headings and
+% the LaTeX convention; subsections stay non-bold so the hierarchy reads.
+\renewcommand{\cftsecfont}{\bfseries\firatitle\color{title}}
+\renewcommand{\cftsecpagefont}{\bfseries\firatitle\color{title}}
+
+% --- Widen number boxes for wide Roman labels ---
+\setlength{\cftsecnumwidth}{2.6em}
+\setlength{\cftsubsecnumwidth}{3.6em}
+
+% --- \tocheading{title} ---
+% Inject an unnumbered heading into the TOC stream (e.g. above the List of
+% Boxes), styled like the TOC title but without a page number or dotted leader.
+% Usage (in the document, where the TOC is built): \tocheading{List of Boxes}
+\newcommand{\tocheading}[1]{%
+    \par\addvspace{14pt}%
+    \noindent{\Large\bfseries\firatitle\color{title}#1}\par\addvspace{6pt}}
+
+% --- \backmatter ---
+% Switch \section numbering to LETTERS (A, B, …) and restart it for an
+% appendix, matching the appendix convention of the VAR Toolbox Handbook
+% (standard \appendix behavior). Subsections become A.1, A.2, …. Hyperref
+% anchors are re-prefixed (theHsection) so appendix links do not clash with
+% the Roman-numbered main body.
+% Usage: \backmatter  (then \section{...} is lettered A, B, …)
+\makeatletter
+\newcommand*\backmatter{%
+    \setcounter{section}{0}%
+    \setcounter{subsection}{0}%
+    \renewcommand{\thesection}{\Alph{section}}%
+    \renewcommand{\thesubsection}{\Alph{section}.\arabic{subsection}}%
+    \renewcommand\theHsection{back.\Alph{section}}}
+\makeatother
+
+
+%=============================================================================
 %  PARAGRAPH NUMBERING
 %-----------------------------------------------------------------------------
 % A manual counter for numbered paragraphs. Separate from \paragraph heading
@@ -726,16 +952,22 @@
 %=============================================================================
 
 \newcounter{paranum}
-\renewcommand{\theparanum}{\arabic{paranum}.}   % Format: 1.  2.  3. …
+% The counter representation is a BARE number (no trailing dot): \refstepcounter
+% sets \@currentlabel from \theparanum, so keeping it bare makes \ref{para:...}
+% resolve to "2" rather than "2." (a baked-in dot leaks into cross-references and
+% reads like a sentence break). The dot is added by \para at typeset time instead,
+% so the paragraph-start display is unchanged ("1.  2.  3. …").
+\renewcommand{\theparanum}{\arabic{paranum}}
 
 % --- \para ---
-% Increments the counter and typesets the number followed by a quad of space.
+% Increments the counter and typesets the number, a period, and a quad of space.
 % \leavevmode ensures it works at the start of a paragraph (vertical mode)
-% without inserting a blank line before the number.
+% without inserting a blank line before the number. Because \para calls
+% \refstepcounter, a numbered paragraph can carry a \label and be cited with \ref.
 %
 % Usage:
 %   \para First numbered paragraph.
-%   \para Second numbered paragraph.
-\newcommand{\para}{\leavevmode\refstepcounter{paranum}\theparanum\quad}
+%   \para\label{para:key} Second paragraph, labelled for \ref{para:key}.
+\newcommand{\para}{\leavevmode\refstepcounter{paranum}\theparanum.\quad}
 
 \endinput

@@ -3,9 +3,24 @@
 \renewcommand{\memouser}{ACB}      % default username (your initials)
 \renewcommand{\memocolor}{BoEred}  % default color
 
+% --- Demo-only helper (NOT part of the theme) -------------------------------
+% Shows the LaTeX source of each feature directly above its rendered result so
+% readers can copy the exact usage. Set on the same light-gray background as the
+% theme's `code` environment (codegray + jambrocode style) so source and result
+% share a consistent look. Defined here, not in the .sty (demo-only).
+\newtcblisting{democode}{%
+  listing only,
+  listing options={style=jambrocode},
+  colback=codegray, colframe=codegray,   % grey fill, no visible border
+  boxrule=0pt, arc=2pt,
+  left=4pt, right=4pt, top=3pt, bottom=3pt,
+  before skip=6pt, after skip=6pt,
+  breakable,
+}
+
 %==================================================
-\title{\vspace{-2cm}\color{BoEblue}
-\textbf{notesthemejambro.sty}\\[0.3em]
+\title{\vspace{-2cm}\color{title}
+\huge\textbf{notesthemejambro.sty}\\[0.3em]
 \Large Feature Demo\\[0.3em]
 \large v1.1-dev --- \textit{\today}
 }
@@ -14,8 +29,9 @@
 \begin{document}
 \maketitle
 \tableofcontents
-\newpage
-\vspace{-1cm}
+\clearpage
+\listofboxes
+\clearpage
 %==================================================
 
 %==================================================
@@ -25,32 +41,49 @@
 \subsection{Body Text}
 %--------------------------------------------------
 
-The default font is \textbf{Cabin} (sans-serif), loaded via \verb|[sfdefault]{cabin}|. All body text, headings, and captions use this family. Math is rendered in the standard Computer Modern math fonts alongside Cabin.
+Body text is set in \textbf{Source Sans Pro} (loaded via \verb|[default]{sourcesanspro}| as the document default), while section headings use \textbf{Fira Sans} (the \verb|\firatitle| switch) for contrast. Captions follow the body font. Math is rendered in the standard Computer Modern math fonts.
 
 A short paragraph: The quick brown fox jumps over the lazy dog. Numbers: 0123456789. Greek: $\alpha, \beta, \gamma, \delta, \epsilon$. Operators: $\sum_{i=1}^{n} x_i$, $\int_0^\infty e^{-x}\,dx$.
 
 \subsection{Handwriting Font}
 %--------------------------------------------------
 
-The Augie font is available for hand-drawn effects:
+The Augie font is available for hand-drawn effects. \texttt{\string\hand} is a font switch (use inside a group \verb|{...}|); \texttt{\string\handbold} takes its text as an argument:
+
+\begin{democode}
+{\hand This is the Augie handwriting font.}
+\handbold{This is handbold (default stroke 0.6).}
+\handbold[0.3]{Lighter stroke.}   % optional width argument
+\handbold[1.0]{Heavier stroke.}
+\end{democode}
+
+\noindent renders as:
 
 \begin{itemize}
     \item {\hand This sentence is set in the Augie handwriting font.}
     \item \handbold{This sentence uses handbold — bold Augie via PDF stroke literal.}
+    \item Stroke width is an optional argument: \handbold[0.2]{light (0.2)}, \handbold[0.6]{default (0.6)}, \handbold[1.1]{heavy (1.1)}.
     \item Mixed: regular text alongside {\hand handwritten words} in the same line.
 \end{itemize}
 
 \subsection{Pencil Underlines}
 %--------------------------------------------------
 
-\lapis{Default underline} uses the \texttt{carandache} color (goldenrod). A custom color is passed as an optional argument:
+\lapis{Default underline} uses the \texttt{carandache} color (goldenrod). The color is passed as an optional argument:
+
+\begin{democode}
+\lapis{default underline}
+\lapis[tomato]{custom color}
+\end{democode}
+
+\noindent The optional argument accepts any defined color (code $\to$ result):
 
 \begin{itemize}
-    \item \lapis{carandache gold} — default
-    \item \lapis[tomato]{tomato red}
-    \item \lapis[note]{note blue}
-    \item \lapis[cobalt]{cobalt teal}
-    \item \lapis[BoEpurple]{BoE purple}
+    \item \verb|\lapis{carandache gold}| $\to$ \lapis{carandache gold} (default)
+    \item \verb|\lapis[tomato]{tomato red}| $\to$ \lapis[tomato]{tomato red}
+    \item \verb|\lapis[note]{note blue}| $\to$ \lapis[note]{note blue}
+    \item \verb|\lapis[cobalt]{cobalt teal}| $\to$ \lapis[cobalt]{cobalt teal}
+    \item \verb|\lapis[BoEpurple]{BoE purple}| $\to$ \lapis[BoEpurple]{BoE purple}
 \end{itemize}
 
 Underlines work inside longer sentences too: the model predicts that \lapis{output falls} whenever the borrowing constraint \lapis[tomato]{binds}.
@@ -62,14 +95,21 @@ Underlines work inside longer sentences too: the model predicts that \lapis{outp
 \subsection{Inline Boxes}
 %--------------------------------------------------
 
-\lapisbox{Default gold box} uses no options. Custom colors:
+\lapisbox{Default gold box} uses no options. The color is set with the \texttt{color=} key:
+
+\begin{democode}
+\lapisbox{default gold box}
+\lapisbox[color=tomato]{custom color}
+\end{democode}
+
+\noindent Color variants (code $\to$ result):
 
 \begin{itemize}
-    \item \lapisbox{gold} — default
-    \item \lapisbox[color=tomato]{tomato}
-    \item \lapisbox[color=note]{note blue}
-    \item \lapisbox[color=cobalt]{cobalt}
-    \item \lapisbox[color=BoEpurple]{BoE purple}
+    \item \verb|\lapisbox{gold}| $\to$ \lapisbox{gold} (default)
+    \item \verb|\lapisbox[color=tomato]{tomato}| $\to$ \lapisbox[color=tomato]{tomato}
+    \item \verb|\lapisbox[color=note]{note blue}| $\to$ \lapisbox[color=note]{note blue}
+    \item \verb|\lapisbox[color=cobalt]{cobalt}| $\to$ \lapisbox[color=cobalt]{cobalt}
+    \item \verb|\lapisbox[color=BoEpurple]{BoE purple}| $\to$ \lapisbox[color=BoEpurple]{BoE purple}
 \end{itemize}
 
 Boxes work mid-sentence: the key result is that \lapisbox[color=note]{$\beta > 0$} whenever agents are impatient.
@@ -77,23 +117,43 @@ Boxes work mid-sentence: the key result is that \lapisbox[color=note]{$\beta > 0
 \subsection{Equation Boxes}
 %--------------------------------------------------
 
-\verb|\lapisboxeq| wraps display math in a pencil box without requiring the caller to enter math mode:
+\verb|\lapisboxeq| wraps display math in a pencil box without requiring the caller to enter math mode. Put the math content directly in the argument (no \verb|$| or \verb|\[|):
+
+\begin{democode}
+\[
+    \lapisboxeq{Y_t = C_t + I_t + G_t + NX_t}
+    \qquad
+    \lapisboxeq[color=tomato]{r_t = \rho + \phi_\pi \pi_t}
+\]
+\end{democode}
+
+\noindent renders as:
 \[
     \lapisboxeq{Y_t = C_t + I_t + G_t + NX_t}
     \qquad
     \lapisboxeq[color=tomato]{r_t = \rho + \phi_\pi(\pi_t - \bar\pi) + \phi_y \tilde y_t}
 \]
 
-It also works inline: the steady-state condition is \lapisboxeq{r = \rho}.
+It also works inline: \verb|\lapisboxeq{r = \rho}| $\to$ the steady-state condition is \lapisboxeq{r = \rho}.
 
 \subsection{Labeled boxes and pencil arrows}
 %--------------------------------------------------
 
-Boxes with \verb|label=| create named TikZ nodes. A later \texttt{tikzpicture} can target them; compile \textbf{twice} for cross-picture references to resolve.
+Boxes with \verb|label=| create named TikZ nodes. A later \texttt{tikzpicture} (with the \texttt{tpstyle} option) targets them by name; compile \textbf{twice} for cross-picture references to resolve:
 
+\begin{democode}
+The \lapisbox[color=tomato,label=firesale]{firesale} externality
+\begin{tikzpicture}[tpstyle]
+    \draw[pencil,->,tomato!80] ([yshift=-2pt]firesale.south east)
+        to[bend right] +(+0.7,-0.5)
+        node[anchor=west,opacity=1,tomato] {\hand A comment};
+\end{tikzpicture}
+\end{democode}
+
+\noindent renders as:
 
 \begin{itemize}
-    \item The \lapisbox[color=note,label=demand]{aggregate demand} externality 
+    \item The \lapisbox[color=note,label=demand]{aggregate demand} externality
     \item The \lapisbox[color=tomato,label=firesale]{firesale} externality
 \end{itemize}
 \begin{tikzpicture}[tpstyle]
@@ -107,12 +167,32 @@ Boxes with \verb|label=| create named TikZ nodes. A later \texttt{tikzpicture} c
 \subsection{Inline Todo Notes}
 %--------------------------------------------------
 
+\begin{democode}
+\NB{remember to add the proof here}
+\end{democode}
+
+\noindent renders as:
+
 \NB{This is an inline note produced by the \texttt{NB} command. It uses the \texttt{note} blue background from \texttt{todonotes}.}
 
 Todo notes are useful for flagging gaps during drafting. They sit in the text flow (not the margin) and are easy to search.
 
 \subsection{Draft Annotations}
 %--------------------------------------------------
+
+The default user and color are set once in the preamble; individual calls override them with \texttt{user=} and \texttt{color=} keys:
+
+\begin{democode}
+% in the preamble:
+\renewcommand{\memouser}{ACB}
+\renewcommand{\memocolor}{BoEred}
+% in the body:
+\memo{uses the preamble defaults}
+\memo[user=JB,color=note]{override both}
+\memo[color=cobalt]{override color only}
+\end{democode}
+
+\noindent renders as:
 
 \memo{Default user (ACB, set once in the preamble) and default color (BoEred).}
 
@@ -125,7 +205,15 @@ Regular text continues after the annotation without extra spacing.
 \subsection{Note Boxes}
 %--------------------------------------------------
 
-A \verb|notebox| is a breakable shaded callout:
+A \verb|notebox| is a breakable shaded callout. It is an environment, so wrap content between \verb|\begin{notebox}| and \verb|\end{notebox}|:
+
+\begin{democode}
+\begin{notebox}
+    \textbf{Key result.} Some highlighted text.
+\end{notebox}
+\end{democode}
+
+\noindent renders as:
 
 \begin{notebox}
     \textbf{Key result.} In the Korinek--Simsek (2016) model, competitive borrowers do not internalise that their deleveraging reduces aggregate income. The social planner internalises this and chooses a lower debt level in period 0.
@@ -142,6 +230,72 @@ Note boxes accept arbitrary content including math and itemize:
     Both generate over-borrowing in equilibrium.
 \end{notebox}
 
+Adding \verb|\boxentry{title}| as the first line turns a plain \verb|notebox| into a \emph{numbered} box: it gains a dotted ``Box~X.Y'' header, an entry in the List of Boxes (shown after the table of contents), and a label you can \verb|\ref|. A bare \verb|notebox| (above) stays unnumbered and header-less.
+
+\begin{democode}
+\begin{notebox}
+    \boxentry{The running example}\label{box:demo}
+    Body text of the numbered box ...
+\end{notebox}
+As shown in Box~\ref{box:demo} ...
+\end{democode}
+
+\noindent renders as:
+
+\begin{notebox}
+    \boxentry{The running example}\label{box:example}
+    \textbf{The running example.} A bivariate VAR(1) keeps every object small enough to write out in full. Box numbers run ``\,arabic-section.alpha\,'' (here \ref{box:example}) and reset each section.
+\end{notebox}
+
+\begin{notebox}
+    \boxentry{A second numbered box}\label{box:second}
+    This box increments the letter within the section, so it is Box~\ref{box:second}. Cross-references resolve because \verb|\boxentry| calls \verb|\refstepcounter|.
+\end{notebox}
+
+Reference them anywhere: the example is in Box~\ref{box:example} and the follow-up in Box~\ref{box:second}.
+
+Although a \verb|notebox| and an \verb|\NB| note share the same \texttt{note} blue, they serve opposite purposes. A \verb|notebox| is an environment for \emph{permanent} content you want to keep in the finished document --- a highlighted result, definition, or remark --- and it lightly shades (\texttt{note!10}), breaks across pages, and holds a body of any length. \verb|\NB{...}| is a single-argument command for \emph{transient} draft markers (``fix this later''); it renders as a more saturated inline banner (\texttt{note!40}) via \texttt{todonotes}. Unlike \verb|\memo|, \verb|\NB| has no suppression toggle, so remove such markers before finalising.
+
+%==================================================
+\section{Code Listings}
+%==================================================
+
+\subsection{The \texttt{code} Environment}
+%--------------------------------------------------
+
+The \verb|code| environment typesets a verbatim block on a light-gray background. It is deliberately monochrome --- all text is black, with no syntax highlighting --- and breaks across pages. Content is taken verbatim, so no escaping is needed:
+
+\begin{democode}
+\begin{code}
+% MATLAB: estimate a reduced-form VAR(1)
+[VAR, VARopt] = VARmodel(data, 1);
+disp(VAR.Fcomp);   % companion matrix
+\end{code}
+\end{democode}
+
+\noindent renders as:
+
+\begin{code}
+% MATLAB: estimate a reduced-form VAR(1)
+root = fileparts(fileparts(mfilename('fullpath')));
+addpath(fullfile(root, 'VAR'));
+[VAR, VARopt] = VARmodel(data, 1);   % equation-by-equation OLS
+disp(VAR.Fcomp);                     % companion matrix
+rmpath(genpath(root));
+\end{code}
+
+\subsection{Inline Code Chips}
+%--------------------------------------------------
+
+\verb|\mc| and \verb|\mci| set inline code on the same light-gray background. \verb|\mc| uses a fixed code size; \verb|\mci| follows the surrounding font size:
+
+\begin{democode}
+Call \mc{addpath(genpath(root))} to add the toolbox; the
+\mci{root} variable holds the install path.
+\end{democode}
+
+\noindent renders as: call \mc{addpath(genpath(root))} to add the toolbox; the \mci{root} variable holds the install path.
+
 %==================================================
 \section{Mathematics}
 %==================================================
@@ -149,7 +303,13 @@ Note boxes accept arbitrary content including math and itemize:
 \subsection{Standard Environments}
 %--------------------------------------------------
 
-The \verb|\E| shorthand gives the expectations operator:
+The \verb|\E| shorthand gives the expectations operator (use \verb|\E_t| for a time subscript):
+
+\begin{democode}
+\[ \E_t\left[ u'(C_{t+1}) \right] = 1 \]
+\end{democode}
+
+\noindent renders as:
 \[
     \E_t\left[\frac{u'(C_{t+1})}{u'(C_t)}\frac{1+r_{t+1}}{1+\pi_{t+1}}\right] = 1
 \]
@@ -168,34 +328,71 @@ A multi-line derivation using \texttt{align}:
 \subsection{Standard Tabularx}
 %--------------------------------------------------
 
-The \texttt{Y} column type is a centered auto-width \texttt{X} column. The style deliberately redefines \verb|\notesize| to produce compact 8.5pt annotation text below the table.
+The \texttt{Y} column type is a centered auto-width \texttt{X} column. The style deliberately redefines \verb|\notesize| to produce compact 8.5pt annotation text below the table:
 
-\begin{table}[h!]
-\centering
-\caption{Summary of externality types}
-\begin{tabularx}{0.85\linewidth}{lYY}
-    \toprule
-    & \textbf{Aggregate demand} & \textbf{Firesale} \\
-    \midrule
-    Mechanism   & Spending $\to$ income & Prices $\to$ collateral \\
-    Affected by & Borrower deleveraging & Asset sales \\
-    Policy tool & Debt tax / limit & LTV cap \\
-    Model       & Korinek--Simsek & Lorenzoni \\
-    \bottomrule
-\end{tabularx}
-\\[0.4em]
-{\notesize Note: Both mechanisms generate over-borrowing in competitive equilibrium.}
+A publication-style pattern wraps the table in a fixed-width \texttt{minipage} (so the caption and note share the table's measure), uses \verb|\shortstack| for two-line headers, and sets a long \verb|\notesize| note that wraps across several lines:
+
+\begin{democode}
+\begin{table}[ht!]
+    \centering
+    \begin{minipage}[b]{.7\textwidth}
+        \begin{center}\small
+        \begin{tabularx}{\textwidth}{lYY}
+        \toprule
+            & \shortstack{Demand\\ Shock} & \shortstack{Monetary\\ Policy Shock} \\
+            & ($\varepsilon_{t}^{Demand}$) & ($\varepsilon_{t}^{MonPol}$) \\ \midrule\addlinespace
+            Output growth ($y_{t}$)             & + & - \\
+            Short-term Interest Rate ($r_{t}$)  & + & + \\ \bottomrule
+        \end{tabularx}%
+        \end{center}
+        \vspace{0.4cm}
+        \caption{\scshape{Sign Restrictions for Demand Shock \\ and Monetary Policy Shock}}
+        \vspace{0.2cm}
+        {\notesize {\scshape Note.} The signs represent restrictions on the
+        elements of the structural impact matrix $B$ ...}
+        \label{tab:SR}
+    \end{minipage}
 \end{table}
+\end{democode}
 
+\noindent renders as:
+
+\begin{table}[ht!]
+	\centering
+	\caption{\scshape{Sign Restrictions for Demand Shock and Monetary Policy Shock}}
+    \begin{minipage}[b]{.8\textwidth}
+    \begin{center}\small
+    \begin{tabularx}{\textwidth}{lYY}
+    \toprule
+        & \shortstack{Demand\\ Shock} & \shortstack{Monetary\\ Policy Shock} \\
+        & ($\varepsilon_{t}^{Demand}$) & ($\varepsilon_{t}^{MonPol}$) \\ \midrule\addlinespace
+        Output growth ($y_{t}$) & + & - \\
+        Short-term Interest Rate ($r_{t}$) & + & + \\ \bottomrule
+    \end{tabularx}%
+    \end{center}
+    \vspace{-.3cm}
+    {\notesize {\scshape Note.} The signs represent restrictions on the elements of the structural impact matrix $B$. `$+$' and `$-$' indicate a positive and negative contemporaneous response, respectively. A demand shock raises both output growth and the short-term interest rate, as monetary policy tightens to contain the expansion. A contractionary monetary policy shock lowers output growth and raises the interest rate, consistent with an unexpected tightening of monetary policy.\par}
+    \label{tab:SR}
+	\end{minipage}
+\end{table}
+ 
 \subsection{Table with Row Colors}
 %--------------------------------------------------
 
-The \texttt{[table]} option on \texttt{xcolor} enables \verb|\rowcolor|:
+The \texttt{[table]} option on \texttt{xcolor} (loaded by the theme) enables \verb|\rowcolor|, placed at the start of a row:
 
-\begin{table}[h!]
-\centering
-\caption{Model parameters}
-\begin{tabularx}{0.7\linewidth}{lYY}
+\begin{democode}
+\rowcolor{note!8} Discount factor & $\beta^b$ & 0.90 \\
+\end{democode}
+
+\noindent renders as:
+
+\begin{table}[ht!]
+	\centering
+	\caption{\scshape{Model Parameters}}
+    \begin{minipage}[b]{.7\textwidth}
+    \begin{center}\small
+    \begin{tabularx}{\textwidth}{lYY}
     \toprule
     \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
     \midrule
@@ -205,23 +402,46 @@ The \texttt{[table]} option on \texttt{xcolor} enables \verb|\rowcolor|:
     Frisch elasticity         & $\varphi$ & 1.00 \\
     \rowcolor{note!8} Price rigidity            & $\kappa$  & 0.50 \\
     \bottomrule
-\end{tabularx}
+    \end{tabularx}%
+    \end{center}
+    \vspace{-.3cm}
+    {\notesize {\scshape Note.} Illustrative calibration of the borrower--lender model used throughout this demo; the values are not estimated and serve only to exercise the \texttt{\string\rowcolor} shading and the \texttt{Y} column type within the same fixed-width \texttt{minipage} layout as Table~\ref{tab:SR}.\par}
+    \label{tab:params}
+	\end{minipage}
 \end{table}
 
 %==================================================
 \section{Paragraph Numbering}
 %==================================================
 
-Numbered paragraphs use \verb|\para|. The counter increments automatically and typesets a number followed by a quad of space.
+Numbered paragraphs use \verb|\para|. Place it at the start of the paragraph; the counter increments automatically and typesets a number followed by a quad of space:
+
+\begin{democode}
+\para This paragraph is automatically numbered.
+\para So is this one, with the next number.
+\end{democode}
+
+\noindent renders as:
 
 \para This is the first numbered paragraph. The number is produced by \verb|\para| and counts independently of section numbers. It is useful for notes that cross-reference specific arguments.
 
-\para This is the second numbered paragraph. The borrowing constraint $B_{t+1} \leq \phi$ is assumed to bind in period 1 but not in period 0.
+\para\label{para:bind} This is the second numbered paragraph. The borrowing constraint $B_{t+1} \leq \phi$ is assumed to bind in period 1 but not in period 0.
 
 \para This is the third numbered paragraph. The social planner internalises the aggregate demand externality and imposes a tax $\tau^*$ on period-0 borrowing.
 
+Because \verb|\para| calls \verb|\refstepcounter|, a numbered paragraph can carry a \verb|\label| and be cited later with \verb|\ref|:
+
+\begin{democode}
+\para\label{para:key} The constraint binds in period 1.
+...as assumed in paragraph~\ref{para:key}, the planner...
+\end{democode}
+
+\noindent The second paragraph above is labelled \verb|para:bind|; referring to it here resolves to paragraph~\ref{para:bind}. A fourth paragraph can then build on it explicitly:
+
+\para Building on the assumption introduced in paragraph~\ref{para:bind}, the planner's tax $\tau^*$ restores constrained efficiency.
+
 \begin{notebox}
-    Paragraphs~1--3 above illustrate that \verb|\para| works alongside \verb|notebox| and other environments. Cross-referencing via \verb|\label| / \verb|\ref| works because \verb|\para| calls \verb|\refstepcounter|.
+    Cross-references resolve inside environments too: this \verb|notebox| cites paragraph~\ref{para:bind} directly, confirming that \verb|\para| labels behave like any other counter and that \verb|\para| coexists with \verb|notebox| without disturbing the count.
 \end{notebox}
 
 %==================================================
@@ -231,7 +451,15 @@ Numbered paragraphs use \verb|\para|. The counter increments automatically and t
 \subsection{Inline Directional Arrows}
 %--------------------------------------------------
 
-The \verb|\jarrow*| commands produce small baseline-aligned pencil arrows. All four directions are available:
+The \verb|\jarrow*| commands produce small baseline-aligned pencil arrows. Follow them with \verb|\ | (backslash-space) to keep the following space, since the command gobbles it:
+
+\begin{democode}
+GDP growth \jarrowup\ accelerated in Q3.
+\jarrowup[color=tomato]   % options via key=value
+\jarrowr[len=0.6cm,lw=0.1cm]   % \jarrowr = \jarrowright
+\end{democode}
+
+\noindent renders as (all four directions are available):
 
 \begin{itemize}
     \item Up:    GDP growth \jarrowup\ accelerated in Q3.
@@ -245,7 +473,17 @@ Custom options via key=value: \jarrowup[color=tomato]\ (tomato), \jarrowr[len=0.
 \subsection{Overlay Arrows with Marker Nodes}
 %--------------------------------------------------
 
-\verb|\marker{name}{text}| wraps visible text in a named TikZ node. A subsequent overlay \texttt{tikzpicture} can draw an \texttt{arrow}-style line to it. Compile \textbf{twice} for cross-picture references to resolve.
+\verb|\marker{name}{text}| wraps visible text in a named TikZ node. A subsequent overlay \texttt{tikzpicture} draws an \texttt{arrow}-style line to it. Compile \textbf{twice} for cross-picture references to resolve:
+
+\begin{democode}
+Consider the \marker{fisherA}{Fisher equation}:
+\begin{tikzpicture}[tpstyle]
+    \draw[arrow] ([yshift=-3pt]fisherA.south) to[bend right=20]
+        +(+0.2,-0.6) node[anchor=north west] {\hand links $r$ and $\pi$};
+\end{tikzpicture}
+\end{democode}
+
+\noindent renders as:
 
 Consider the \marker{fisherA}{Fisher equation} and the \marker{quantA}{quantity theory}:
 \begin{tikzpicture}[tpstyle]
@@ -259,6 +497,8 @@ Consider the \marker{fisherA}{Fisher equation} and the \marker{quantA}{quantity 
 %==================================================
 \section{Package Options}
 %==================================================
+
+This section documents the two options the package accepts at load time, passed in the optional argument of \verb|\usepackage|: \verb|wiggle=<n>| sets the amplitude of the pencil decoration, and \verb|hidememo| suppresses all \verb|\memo| output for a clean final build. Each is demonstrated below.
 
 \subsection{Wiggle}
 %--------------------------------------------------
@@ -281,5 +521,41 @@ This document uses the default. Recompile with a different option to compare:
 %--------------------------------------------------
 
 Use \verb|\usepackage[hidememo]{notesthemejambro}| when you want the same notes document without draft annotations. In that mode every \verb|\memo| call expands to nothing, while the rest of the style remains unchanged.
+
+%==================================================
+\section{Front and Back Matter}
+%==================================================
+
+\subsection{TOC Headings and the List of Boxes}
+%--------------------------------------------------
+
+The List of Boxes after the table of contents is produced by \verb|\listofboxes|; every numbered box (created with \verb|\boxentry|, Section~III) adds an entry. \verb|\tocheading| typesets an unnumbered heading in the TOC font, useful for labelling front-matter sections:
+
+\begin{democode}
+\tableofcontents
+\listofboxes              % auto-titled "List of Boxes"
+\tocheading{Supplementary Material}   % unnumbered heading
+\end{democode}
+
+\noindent \verb|\tocheading{Example Heading}| renders as:
+
+\tocheading{Example Heading}
+
+\subsection{Appendix Numbering}
+%--------------------------------------------------
+
+\verb|\backmatter| switches \verb|\section| numbering to letters and restarts it at~A (and re-prefixes hyperlink anchors so they stay unique), matching the appendix convention of the VAR Toolbox Handbook. Call it before an appendix; the section below uses it, so it is lettered~A even though it follows Section~X.
+
+\begin{democode}
+\backmatter
+\section{Appendix: Quick Reference}
+\end{democode}
+
+\backmatter
+%==================================================
+\section{Appendix: Quick Reference}
+%==================================================
+
+This section follows Section~X in the source but is lettered~\thesection, because \verb|\backmatter| switched section numbering to letters and reset the counter. 
 
 \end{document}
