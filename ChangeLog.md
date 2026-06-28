@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## Version 1.1-dev — *2026-06-29* — Repository cleanup for public release
+
+### Changed
+- **Repo layout slimmed to the essentials.** Renamed `DemoNotes.tex` → `Demo.tex` and `DemoNotes.pdf` → `Demo.pdf`. The tracked set is now `notesthemejambro.sty`, `Demo.tex`, `Demo.pdf`, `ChangeLog.md`, `README.md`, `.gitignore`.
+
+### Added
+- **`README.md`** — overview, installation, package options, public-API reference, and color list.
+- **`.gitignore`** — excludes LaTeX build artifacts (`*.aux`, `*.log`, `*.toc`, `*.lob`, …) and local tooling (`.claude/`), while keeping `Demo.pdf` tracked.
+
+### Removed
+- **Build artifacts untracked.** `DemoNotes.aux/.fdb_latexmk/.fls/.log/.out/.synctex.gz/.toc` removed from version control (now regenerated on compile and ignored).
+- **AI routing files** `AGENTS.md` and `CLAUDE.md` removed from the repo; `.claude/` untracked (local config kept on disk, no longer published). All remain recoverable from Git history.
+
+---
+
 ## Version 1.1-dev — *2026-06-29* — Publication-style table demo + tighter `\notesize` leading
 
 ### Changed

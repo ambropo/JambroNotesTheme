@@ -1,0 +1,29 @@
+# ── LaTeX build artifacts ────────────────────────────────────────────
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.lob
+*.listing
+*.synctex.gz
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+*.fff
+*.ttt
+
+# Track the rendered demo (Demo.pdf); ignore any other stray PDFs
+*.pdf
+!Demo.pdf
+
+# ── Editor / OS ──────────────────────────────────────────────────────
+.DS_Store
+
+# ── Local tooling (Claude Code) ──────────────────────────────────────
+.claude/
