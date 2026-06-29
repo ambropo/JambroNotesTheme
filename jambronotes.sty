@@ -1,4 +1,4 @@
-%% notesthemejambro.sty
+%% jambronotes.sty
 %% ===========================================================================
 %% Personal Notes Style — Jambro
 %% Author: Ambrogio Cesa-Bianchi
@@ -15,16 +15,16 @@
 %%
 %% USAGE:
 %% \documentclass[11pt,a4paper]{article}
-%% \usepackage{notesthemejambro}             % defaults
-%% \usepackage[wiggle=1.4]{notesthemejambro} % more expressive pencil
-%% \usepackage[hidememo]{notesthemejambro}   % suppress all \memo output
+%% \usepackage{jambronotes}             % defaults
+%% \usepackage[wiggle=1.4]{jambronotes} % more expressive pencil
+%% \usepackage[hidememo]{jambronotes}   % suppress all \memo output
 %%
 %% OPTIONS:
 %% - wiggle=<n>  Amplitude of the pencil/sketch decoration in pt (default: 0.4).
 %%               Larger values produce more pronounced hand-drawn wobble.
-%%               Usage: \usepackage[wiggle=1.2]{notesthemejambro}
+%%               Usage: \usepackage[wiggle=1.2]{jambronotes}
 %% - hidememo    Suppress all \memo{} output for clean/final compilation.
-%%               Usage: \usepackage[hidememo]{notesthemejambro}
+%%               Usage: \usepackage[hidememo]{jambronotes}
 %%
 %% PUBLIC COMMANDS:
 %% - \NB{text}                               Inline todo note (note-blue background)
@@ -76,7 +76,7 @@
 %% ===========================================================================
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{notesthemejambro}[2026/06/28 v1.1-dev Jambro Notes Style]
+\ProvidesPackage{jambronotes}[2026/06/28 v1.1-dev Jambro Notes Style]
 
 
 %=============================================================================
@@ -114,7 +114,7 @@
 }
 
 % \ProcessOptions* (starred) also forwards global \documentclass options,
-% so \documentclass[wiggle=1.2]{article} works alongside \usepackage[wiggle=1.2]{notesthemejambro}.
+% so \documentclass[wiggle=1.2]{article} works alongside \usepackage[wiggle=1.2]{jambronotes}.
 \ProcessOptions*\relax
 
 

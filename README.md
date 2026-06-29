@@ -10,11 +10,11 @@ A fully worked feature showcase is in **[`Demo.tex`](Demo.tex)** — see the ren
 
 ## Getting Started
 
-Drop `notesthemejambro.sty` next to your `.tex` file (or anywhere in your `TEXMF` tree) and load it:
+Drop `jambronotes.sty` next to your `.tex` file (or anywhere in your `TEXMF` tree) and load it:
 
 ```latex
 \documentclass[11pt,a4paper]{article}
-\usepackage{notesthemejambro}
+\usepackage{jambronotes}
 ```
 
 The style loads its own dependencies (`tcolorbox`, `tikz`, `booktabs`, `tabularx`,
@@ -31,8 +31,8 @@ features that draw arrows to named nodes need **two passes** to resolve.
 | `hidememo` | off | Suppress every `\memo{…}` so a final build carries no draft annotations. |
 
 ```latex
-\usepackage[wiggle=1.2]{notesthemejambro}   % livelier pencil
-\usepackage[hidememo]{notesthemejambro}      % clean final build
+\usepackage[wiggle=1.2]{jambronotes}   % livelier pencil
+\usepackage[hidememo]{jambronotes}      % clean final build
 ```
 
 ---

@@ -1,5 +1,5 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage{notesthemejambro}
+\usepackage{jambronotes}
 \renewcommand{\memouser}{ACB}      % default username (your initials)
 \renewcommand{\memocolor}{BoEred}  % default color
 
@@ -20,7 +20,7 @@
 
 %==================================================
 \title{\vspace{-2cm}\color{title}
-\huge\textbf{notesthemejambro.sty}\\[0.3em]
+\huge\textbf{jambronotes.sty}\\[0.3em]
 \Large Feature Demo\\[0.3em]
 \large v1.1-dev --- \textit{\today}
 }
@@ -506,9 +506,9 @@ This section documents the two options the package accepts at load time, passed 
 The pencil amplitude is controlled by the \verb|wiggle=| package option:
 
 \begin{itemize}
-    \item \verb|\usepackage{notesthemejambro}| $\to$ default amplitude (0.4pt)
-    \item \verb|\usepackage[wiggle=0.3]{notesthemejambro}| $\to$ subtle
-    \item \verb|\usepackage[wiggle=1.5]{notesthemejambro}| $\to$ expressive
+    \item \verb|\usepackage{jambronotes}| $\to$ default amplitude (0.4pt)
+    \item \verb|\usepackage[wiggle=0.3]{jambronotes}| $\to$ subtle
+    \item \verb|\usepackage[wiggle=1.5]{jambronotes}| $\to$ expressive
 \end{itemize}
 
 This document uses the default. Recompile with a different option to compare:
@@ -520,7 +520,7 @@ This document uses the default. Recompile with a different option to compare:
 \subsection{Memo Suppression}
 %--------------------------------------------------
 
-Use \verb|\usepackage[hidememo]{notesthemejambro}| when you want the same notes document without draft annotations. In that mode every \verb|\memo| call expands to nothing, while the rest of the style remains unchanged.
+Use \verb|\usepackage[hidememo]{jambronotes}| when you want the same notes document without draft annotations. In that mode every \verb|\memo| call expands to nothing, while the rest of the style remains unchanged.
 
 %==================================================
 \section{Front and Back Matter}
